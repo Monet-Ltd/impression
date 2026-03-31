@@ -1,0 +1,901 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0338330CCFED53F78CEB1539 /* UsageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E43D8D6CD18CEF6025CA7460 /* UsageViewModel.swift */; };
+		06542F08683E53A2875509E3 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C93E760F7590D51AE0FA9917 /* OnboardingView.swift */; };
+		0E38A8A0E6FCDFE2727822EE /* Credentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE3A350B66695BC9E525B9BD /* Credentials.swift */; };
+		1182217905F5FE71534FB0E7 /* CloudSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE133BF2BE063B849227143 /* CloudSyncService.swift */; };
+		144EDFF5C42C4AD4B50AC179 /* UsageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B150276EACE0638DB276C95E /* UsageService.swift */; };
+		1512E16B37BB135ECDC775EE /* UsageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B150276EACE0638DB276C95E /* UsageService.swift */; };
+		17A78D1467A27E9D02139D94 /* CloudSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE133BF2BE063B849227143 /* CloudSyncService.swift */; };
+		186C30F7A3052389588142CB /* UsageData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 109BACBF604AD368CCE47E30 /* UsageData.swift */; };
+		19799D6F15977701A758C42A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A43072B071AFEA55A8707B0B /* ContentView.swift */; };
+		1A70F7C941381D72863544E0 /* SharedDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8376A7FE75ACD293754792C5 /* SharedDataStore.swift */; };
+		21FBD11D67B7CFE0C3EACACA /* CredentialManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9B1F83ED5B3AF720CE024DB /* CredentialManager.swift */; };
+		26F7091EDF288921A77942A4 /* CloudSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE133BF2BE063B849227143 /* CloudSyncService.swift */; };
+		2AB41635F0802AE15BD0B157 /* UsageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E43D8D6CD18CEF6025CA7460 /* UsageViewModel.swift */; };
+		2D6A8345B0CF8A65E7B85B90 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9FC8CB12B54EB7C3BEC81D /* Constants.swift */; };
+		383556775ADD6A69B6829529 /* Credentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE3A350B66695BC9E525B9BD /* Credentials.swift */; };
+		45B6B09D06E2682852CBD4A4 /* Credentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE3A350B66695BC9E525B9BD /* Credentials.swift */; };
+		46DB2708BEF92A50B73BA996 /* UsageWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ABADEAF8D0DB96E74FC43F2 /* UsageWidget.swift */; };
+		557B028245A87B741F1CB572 /* UsageData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 109BACBF604AD368CCE47E30 /* UsageData.swift */; };
+		55C0DBF68AE00594AB569B73 /* UsageTimelineProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C393308F29F4107A8788F416 /* UsageTimelineProvider.swift */; };
+		579ED210D6869479BF3DC926 /* UsageData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 109BACBF604AD368CCE47E30 /* UsageData.swift */; };
+		588D57A123A38744B27A14DC /* ImpressionMac.app in Resources */ = {isa = PBXBuildFile; fileRef = 8EBD0B7BFF35ACD538A1054F /* ImpressionMac.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		592F6A95AD62BD99A45AAA02 /* UsageRingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 296917D9FED7C1428FD281D4 /* UsageRingView.swift */; };
+		5CF102A226FAE91C743B1C90 /* UsageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B150276EACE0638DB276C95E /* UsageService.swift */; };
+		600413CF43C51C946333EB11 /* UsageDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E7CFCAC3B5236CD4521EED5 /* UsageDetailView.swift */; };
+		64F57050DB88AB6E98FDDB98 /* UsageDataParsingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B93A9CD13562B3C38C2C06A /* UsageDataParsingTests.swift */; };
+		68D4EE35FF29C64B2EC6C30F /* Credentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE3A350B66695BC9E525B9BD /* Credentials.swift */; };
+		69AA10943C310357BD63C392 /* UsageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B150276EACE0638DB276C95E /* UsageService.swift */; };
+		6A6AEE32BBDD691088B95B44 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE75CAB5EEBA330EC40D96DC /* SettingsView.swift */; };
+		6DD68E3F9109C31E2CF12796 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9FC8CB12B54EB7C3BEC81D /* Constants.swift */; };
+		715C00D65C33A232B9E306AF /* UsageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B150276EACE0638DB276C95E /* UsageService.swift */; };
+		790B0A032179983FDB83A932 /* NotificationScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D674712C8E22A246019D325 /* NotificationScheduler.swift */; };
+		7CD9A737251970D0BC2A9108 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9FC8CB12B54EB7C3BEC81D /* Constants.swift */; };
+		7DC63F201A057DDDEB53AD3D /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6322DED44CC4B9E0C2F75564 /* OnboardingView.swift */; };
+		84A4F637DF1AD9D28A86B809 /* UsageDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E7CFCAC3B5236CD4521EED5 /* UsageDetailView.swift */; };
+		896077C1E9FADFFA325F724F /* UsageWidgetEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7C74FB9B18E809856AE941 /* UsageWidgetEntryView.swift */; };
+		8B49903FAC5D360CF087DD67 /* UsageWidgetEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7C74FB9B18E809856AE941 /* UsageWidgetEntryView.swift */; };
+		8CB5A0C85BF910AEE9423247 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9FC8CB12B54EB7C3BEC81D /* Constants.swift */; };
+		980A3CC1B0083E62AC8975D2 /* SharedDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8376A7FE75ACD293754792C5 /* SharedDataStore.swift */; };
+		98CEB69711F6D1ED399FE577 /* NotificationScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D674712C8E22A246019D325 /* NotificationScheduler.swift */; };
+		9981A29E349551D8CADA58BB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B96CBAAB21EF245CA8D6405 /* AppDelegate.swift */; };
+		9A46820AB5C8B1CF729149DE /* MacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B75D764E603B512BBF9E47 /* MacApp.swift */; };
+		A744307E99AEF32A5019C3EA /* CloudSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE133BF2BE063B849227143 /* CloudSyncService.swift */; };
+		A756C5AC8CD293A6772BEE8C /* UsageDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E7CFCAC3B5236CD4521EED5 /* UsageDetailView.swift */; };
+		A89EA832D1C33A8AA18AC849 /* UsageRingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 296917D9FED7C1428FD281D4 /* UsageRingView.swift */; };
+		AD8B99B7E3E1BCF0BDA992D1 /* UsageRingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 296917D9FED7C1428FD281D4 /* UsageRingView.swift */; };
+		AE3C65F764FB1311D373D841 /* UsageDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E7CFCAC3B5236CD4521EED5 /* UsageDetailView.swift */; };
+		AFC73A315904627ADE42E676 /* UsageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E43D8D6CD18CEF6025CA7460 /* UsageViewModel.swift */; };
+		B1F6E3BB17E34DED43DA0EB9 /* UsageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E43D8D6CD18CEF6025CA7460 /* UsageViewModel.swift */; };
+		B349F6EE9A362756542981AD /* LockScreenWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361108E118EBC4247AECABC3 /* LockScreenWidget.swift */; };
+		B6294E8E22CF99BB5F3524BF /* UsageTimelineProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C393308F29F4107A8788F416 /* UsageTimelineProvider.swift */; };
+		BE311390DA66431FCE7C0B09 /* Credentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE3A350B66695BC9E525B9BD /* Credentials.swift */; };
+		C65BCF3BB25C077CCB26A9D3 /* UsageRingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 296917D9FED7C1428FD281D4 /* UsageRingView.swift */; };
+		CD6B5E7A06411EB6FA7F05BC /* UsageRingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 296917D9FED7C1428FD281D4 /* UsageRingView.swift */; };
+		D728E2112BC88B5A04E83D9E /* MobileApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E365B84A61138D85AB2E544 /* MobileApp.swift */; };
+		D7A7D108C84203E3CE767E60 /* UsageDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E7CFCAC3B5236CD4521EED5 /* UsageDetailView.swift */; };
+		D8D4140A8C8C3EF3923948A8 /* NotificationScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D674712C8E22A246019D325 /* NotificationScheduler.swift */; };
+		DC5377504D04629D484EF865 /* SharedDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8376A7FE75ACD293754792C5 /* SharedDataStore.swift */; };
+		DCEB4B2BE1D32C8CE45D6A40 /* UsageData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 109BACBF604AD368CCE47E30 /* UsageData.swift */; };
+		DD63122AC2BA54DC44399CD9 /* NotificationScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D674712C8E22A246019D325 /* NotificationScheduler.swift */; };
+		DDC78A8268FB4EB4C94835F1 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9FC8CB12B54EB7C3BEC81D /* Constants.swift */; };
+		DF1E436BD68B148BBEA89898 /* SharedDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8376A7FE75ACD293754792C5 /* SharedDataStore.swift */; };
+		E33CC1D390B2A093E71FE482 /* ImpressionMobile.app in Resources */ = {isa = PBXBuildFile; fileRef = C4038204B528BAAF15A97627 /* ImpressionMobile.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E80CD46AD82833DC2DDF1DE8 /* LockScreenWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361108E118EBC4247AECABC3 /* LockScreenWidget.swift */; };
+		EDE3B23E1146F89588CDB761 /* UsageWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ABADEAF8D0DB96E74FC43F2 /* UsageWidget.swift */; };
+		F23122FE8F8A43625BBF0491 /* SharedDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8376A7FE75ACD293754792C5 /* SharedDataStore.swift */; };
+		F24D6E1859C0AF9DA8A3D14A /* UsageData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 109BACBF604AD368CCE47E30 /* UsageData.swift */; };
+		F58F28AABBB50A60041E0BB9 /* CloudSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE133BF2BE063B849227143 /* CloudSyncService.swift */; };
+		F8E3E75974B36D4C2E5E2A6E /* NotificationScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D674712C8E22A246019D325 /* NotificationScheduler.swift */; };
+		FF516BB2C8E4073486A249DA /* UsageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E43D8D6CD18CEF6025CA7460 /* UsageViewModel.swift */; };
+		FFD27C8EE69818BB263AEE96 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 658A4CE3A3176F5F1F7BA93E /* SettingsView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		1A920D2214BFC97487AE8158 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E6B880A1C2C686E83A85DE12 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 14E0594C6512F46A4B3E039E;
+			remoteInfo = ImpressionMac;
+		};
+		6BB266A8D98CEF08027324FA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E6B880A1C2C686E83A85DE12 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1BABAC8108DCA20F2B8FF6CC;
+			remoteInfo = ImpressionMobile;
+		};
+		A37BC943CDDAE3246A862809 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E6B880A1C2C686E83A85DE12 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 14E0594C6512F46A4B3E039E;
+			remoteInfo = ImpressionMac;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		01B75D764E603B512BBF9E47 /* MacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacApp.swift; sourceTree = "<group>"; };
+		0FE90E91EB519B56562EAEF3 /* ImpressionMac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ImpressionMac.entitlements; sourceTree = "<group>"; };
+		109BACBF604AD368CCE47E30 /* UsageData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageData.swift; sourceTree = "<group>"; };
+		2937AF5ABEDB8463934C96BC /* ImpressionMobile.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ImpressionMobile.entitlements; sourceTree = "<group>"; };
+		296917D9FED7C1428FD281D4 /* UsageRingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageRingView.swift; sourceTree = "<group>"; };
+		2E365B84A61138D85AB2E544 /* MobileApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileApp.swift; sourceTree = "<group>"; };
+		361108E118EBC4247AECABC3 /* LockScreenWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockScreenWidget.swift; sourceTree = "<group>"; };
+		3AAED7EDC064199330DBF480 /* ImpressionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ImpressionTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		459E50EAB9366E626C693BEB /* Widget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Widget.entitlements; sourceTree = "<group>"; };
+		578D37B4C63DCD108FD3CC5A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		5B96CBAAB21EF245CA8D6405 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		5DE133BF2BE063B849227143 /* CloudSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncService.swift; sourceTree = "<group>"; };
+		6322DED44CC4B9E0C2F75564 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		658A4CE3A3176F5F1F7BA93E /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		6ABADEAF8D0DB96E74FC43F2 /* UsageWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageWidget.swift; sourceTree = "<group>"; };
+		7B93A9CD13562B3C38C2C06A /* UsageDataParsingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageDataParsingTests.swift; sourceTree = "<group>"; };
+		7D674712C8E22A246019D325 /* NotificationScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationScheduler.swift; sourceTree = "<group>"; };
+		7E7CFCAC3B5236CD4521EED5 /* UsageDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageDetailView.swift; sourceTree = "<group>"; };
+		8376A7FE75ACD293754792C5 /* SharedDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedDataStore.swift; sourceTree = "<group>"; };
+		871D6195F7AA1D8E90748A58 /* ImpressionWidgetMac.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ImpressionWidgetMac.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		8B7A089612E3F567162155D2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		8EBD0B7BFF35ACD538A1054F /* ImpressionMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImpressionMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		95D621E0A0F532F13D37B5EA /* ImpressionWidgetMobile.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = ImpressionWidgetMobile.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		A43072B071AFEA55A8707B0B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A610609C03D58364C39C954D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		B150276EACE0638DB276C95E /* UsageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageService.swift; sourceTree = "<group>"; };
+		BE3A350B66695BC9E525B9BD /* Credentials.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Credentials.swift; sourceTree = "<group>"; };
+		C393308F29F4107A8788F416 /* UsageTimelineProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageTimelineProvider.swift; sourceTree = "<group>"; };
+		C4038204B528BAAF15A97627 /* ImpressionMobile.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ImpressionMobile.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C93E760F7590D51AE0FA9917 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		DE75CAB5EEBA330EC40D96DC /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		E43D8D6CD18CEF6025CA7460 /* UsageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageViewModel.swift; sourceTree = "<group>"; };
+		EA7C74FB9B18E809856AE941 /* UsageWidgetEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageWidgetEntryView.swift; sourceTree = "<group>"; };
+		ED9FC8CB12B54EB7C3BEC81D /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		F9B1F83ED5B3AF720CE024DB /* CredentialManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CredentialManager.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		0F4EBBDCFBB7E28B6EC1AC28 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8EBD0B7BFF35ACD538A1054F /* ImpressionMac.app */,
+				C4038204B528BAAF15A97627 /* ImpressionMobile.app */,
+				3AAED7EDC064199330DBF480 /* ImpressionTests.xctest */,
+				871D6195F7AA1D8E90748A58 /* ImpressionWidgetMac.appex */,
+				95D621E0A0F532F13D37B5EA /* ImpressionWidgetMobile.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1758719E0261177A021D53F9 = {
+			isa = PBXGroup;
+			children = (
+				963D2CEDE73383F30C072B51 /* ImpressionMac */,
+				958803A1115CF5B6153027AD /* ImpressionMobile */,
+				8BC9BF85E5E9B8C5BCFFD56F /* ImpressionTests */,
+				17644DD55C74B70F2282831D /* ImpressionWidget */,
+				3883AAB9A0354044F2D148B4 /* Shared */,
+				0F4EBBDCFBB7E28B6EC1AC28 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		17644DD55C74B70F2282831D /* ImpressionWidget */ = {
+			isa = PBXGroup;
+			children = (
+				A610609C03D58364C39C954D /* Info.plist */,
+				361108E118EBC4247AECABC3 /* LockScreenWidget.swift */,
+				C393308F29F4107A8788F416 /* UsageTimelineProvider.swift */,
+				6ABADEAF8D0DB96E74FC43F2 /* UsageWidget.swift */,
+				EA7C74FB9B18E809856AE941 /* UsageWidgetEntryView.swift */,
+				459E50EAB9366E626C693BEB /* Widget.entitlements */,
+			);
+			path = ImpressionWidget;
+			sourceTree = "<group>";
+		};
+		2BA311DC3531EA8823B66ECC /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				BE3A350B66695BC9E525B9BD /* Credentials.swift */,
+				109BACBF604AD368CCE47E30 /* UsageData.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		3883AAB9A0354044F2D148B4 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				2BA311DC3531EA8823B66ECC /* Models */,
+				7962BB4FA77F7D2D55D72AC3 /* Services */,
+				BE298F1816BD870EF3FE1AFF /* ViewModels */,
+				9454EDE84DB781067ADC2F36 /* Views */,
+				ED9FC8CB12B54EB7C3BEC81D /* Constants.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		7962BB4FA77F7D2D55D72AC3 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				5DE133BF2BE063B849227143 /* CloudSyncService.swift */,
+				7D674712C8E22A246019D325 /* NotificationScheduler.swift */,
+				8376A7FE75ACD293754792C5 /* SharedDataStore.swift */,
+				B150276EACE0638DB276C95E /* UsageService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		8BC9BF85E5E9B8C5BCFFD56F /* ImpressionTests */ = {
+			isa = PBXGroup;
+			children = (
+				7B93A9CD13562B3C38C2C06A /* UsageDataParsingTests.swift */,
+			);
+			path = ImpressionTests;
+			sourceTree = "<group>";
+		};
+		9454EDE84DB781067ADC2F36 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				7E7CFCAC3B5236CD4521EED5 /* UsageDetailView.swift */,
+				296917D9FED7C1428FD281D4 /* UsageRingView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		958803A1115CF5B6153027AD /* ImpressionMobile */ = {
+			isa = PBXGroup;
+			children = (
+				A43072B071AFEA55A8707B0B /* ContentView.swift */,
+				2937AF5ABEDB8463934C96BC /* ImpressionMobile.entitlements */,
+				8B7A089612E3F567162155D2 /* Info.plist */,
+				2E365B84A61138D85AB2E544 /* MobileApp.swift */,
+				6322DED44CC4B9E0C2F75564 /* OnboardingView.swift */,
+				DE75CAB5EEBA330EC40D96DC /* SettingsView.swift */,
+			);
+			path = ImpressionMobile;
+			sourceTree = "<group>";
+		};
+		963D2CEDE73383F30C072B51 /* ImpressionMac */ = {
+			isa = PBXGroup;
+			children = (
+				5B96CBAAB21EF245CA8D6405 /* AppDelegate.swift */,
+				F9B1F83ED5B3AF720CE024DB /* CredentialManager.swift */,
+				0FE90E91EB519B56562EAEF3 /* ImpressionMac.entitlements */,
+				578D37B4C63DCD108FD3CC5A /* Info.plist */,
+				01B75D764E603B512BBF9E47 /* MacApp.swift */,
+				C93E760F7590D51AE0FA9917 /* OnboardingView.swift */,
+				658A4CE3A3176F5F1F7BA93E /* SettingsView.swift */,
+			);
+			path = ImpressionMac;
+			sourceTree = "<group>";
+		};
+		BE298F1816BD870EF3FE1AFF /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				E43D8D6CD18CEF6025CA7460 /* UsageViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		14E0594C6512F46A4B3E039E /* ImpressionMac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2A686180A680BFA2AE85BCE9 /* Build configuration list for PBXNativeTarget "ImpressionMac" */;
+			buildPhases = (
+				107F96D865C9B860FE147853 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ImpressionMac;
+			packageProductDependencies = (
+			);
+			productName = ImpressionMac;
+			productReference = 8EBD0B7BFF35ACD538A1054F /* ImpressionMac.app */;
+			productType = "com.apple.product-type.application";
+		};
+		1BABAC8108DCA20F2B8FF6CC /* ImpressionMobile */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B61FC36A1A56A71C6D19D575 /* Build configuration list for PBXNativeTarget "ImpressionMobile" */;
+			buildPhases = (
+				29CE44C86CCCF637A9276455 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ImpressionMobile;
+			packageProductDependencies = (
+			);
+			productName = ImpressionMobile;
+			productReference = C4038204B528BAAF15A97627 /* ImpressionMobile.app */;
+			productType = "com.apple.product-type.application";
+		};
+		226299AF662E9A4261FB3616 /* ImpressionWidgetMac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CC65D99DAC6EC6924B69CB9C /* Build configuration list for PBXNativeTarget "ImpressionWidgetMac" */;
+			buildPhases = (
+				3073485C2A4E02CB11E686CF /* Sources */,
+				4029A6EC11CBBAA31EB7F932 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2E100A142CEAC88D0BB8078B /* PBXTargetDependency */,
+			);
+			name = ImpressionWidgetMac;
+			packageProductDependencies = (
+			);
+			productName = ImpressionWidgetMac;
+			productReference = 871D6195F7AA1D8E90748A58 /* ImpressionWidgetMac.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		80D0DDE055632142A4E7CEC0 /* ImpressionTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AD95797A10705F200D813441 /* Build configuration list for PBXNativeTarget "ImpressionTests" */;
+			buildPhases = (
+				1E0221CCF6999745377F90A0 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6C38A936C463352FBB92B0FB /* PBXTargetDependency */,
+			);
+			name = ImpressionTests;
+			packageProductDependencies = (
+			);
+			productName = ImpressionTests;
+			productReference = 3AAED7EDC064199330DBF480 /* ImpressionTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		F3663DAB56EAF6B30ABD011F /* ImpressionWidgetMobile */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C28FCF6C5DAAA15BEA3123A3 /* Build configuration list for PBXNativeTarget "ImpressionWidgetMobile" */;
+			buildPhases = (
+				923CD34450AA56D1937B566B /* Sources */,
+				B62F74C0610BC589EC7B2866 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7BE44D6CE4485D96CEEBC547 /* PBXTargetDependency */,
+			);
+			name = ImpressionWidgetMobile;
+			packageProductDependencies = (
+			);
+			productName = ImpressionWidgetMobile;
+			productReference = 95D621E0A0F532F13D37B5EA /* ImpressionWidgetMobile.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E6B880A1C2C686E83A85DE12 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					14E0594C6512F46A4B3E039E = {
+						DevelopmentTeam = "";
+					};
+					1BABAC8108DCA20F2B8FF6CC = {
+						DevelopmentTeam = "";
+					};
+					226299AF662E9A4261FB3616 = {
+						DevelopmentTeam = "";
+					};
+					80D0DDE055632142A4E7CEC0 = {
+						DevelopmentTeam = "";
+					};
+					F3663DAB56EAF6B30ABD011F = {
+						DevelopmentTeam = "";
+					};
+				};
+			};
+			buildConfigurationList = 196A3E858EAD5419CD9BD343 /* Build configuration list for PBXProject "Impression" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 1758719E0261177A021D53F9;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 0F4EBBDCFBB7E28B6EC1AC28 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				14E0594C6512F46A4B3E039E /* ImpressionMac */,
+				1BABAC8108DCA20F2B8FF6CC /* ImpressionMobile */,
+				80D0DDE055632142A4E7CEC0 /* ImpressionTests */,
+				226299AF662E9A4261FB3616 /* ImpressionWidgetMac */,
+				F3663DAB56EAF6B30ABD011F /* ImpressionWidgetMobile */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		4029A6EC11CBBAA31EB7F932 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				588D57A123A38744B27A14DC /* ImpressionMac.app in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B62F74C0610BC589EC7B2866 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E33CC1D390B2A093E71FE482 /* ImpressionMobile.app in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		107F96D865C9B860FE147853 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9981A29E349551D8CADA58BB /* AppDelegate.swift in Sources */,
+				1182217905F5FE71534FB0E7 /* CloudSyncService.swift in Sources */,
+				DDC78A8268FB4EB4C94835F1 /* Constants.swift in Sources */,
+				21FBD11D67B7CFE0C3EACACA /* CredentialManager.swift in Sources */,
+				0E38A8A0E6FCDFE2727822EE /* Credentials.swift in Sources */,
+				9A46820AB5C8B1CF729149DE /* MacApp.swift in Sources */,
+				F8E3E75974B36D4C2E5E2A6E /* NotificationScheduler.swift in Sources */,
+				06542F08683E53A2875509E3 /* OnboardingView.swift in Sources */,
+				FFD27C8EE69818BB263AEE96 /* SettingsView.swift in Sources */,
+				DC5377504D04629D484EF865 /* SharedDataStore.swift in Sources */,
+				579ED210D6869479BF3DC926 /* UsageData.swift in Sources */,
+				84A4F637DF1AD9D28A86B809 /* UsageDetailView.swift in Sources */,
+				AD8B99B7E3E1BCF0BDA992D1 /* UsageRingView.swift in Sources */,
+				69AA10943C310357BD63C392 /* UsageService.swift in Sources */,
+				2AB41635F0802AE15BD0B157 /* UsageViewModel.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1E0221CCF6999745377F90A0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A744307E99AEF32A5019C3EA /* CloudSyncService.swift in Sources */,
+				7CD9A737251970D0BC2A9108 /* Constants.swift in Sources */,
+				68D4EE35FF29C64B2EC6C30F /* Credentials.swift in Sources */,
+				98CEB69711F6D1ED399FE577 /* NotificationScheduler.swift in Sources */,
+				F23122FE8F8A43625BBF0491 /* SharedDataStore.swift in Sources */,
+				DCEB4B2BE1D32C8CE45D6A40 /* UsageData.swift in Sources */,
+				64F57050DB88AB6E98FDDB98 /* UsageDataParsingTests.swift in Sources */,
+				D7A7D108C84203E3CE767E60 /* UsageDetailView.swift in Sources */,
+				A89EA832D1C33A8AA18AC849 /* UsageRingView.swift in Sources */,
+				1512E16B37BB135ECDC775EE /* UsageService.swift in Sources */,
+				B1F6E3BB17E34DED43DA0EB9 /* UsageViewModel.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		29CE44C86CCCF637A9276455 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				17A78D1467A27E9D02139D94 /* CloudSyncService.swift in Sources */,
+				2D6A8345B0CF8A65E7B85B90 /* Constants.swift in Sources */,
+				19799D6F15977701A758C42A /* ContentView.swift in Sources */,
+				45B6B09D06E2682852CBD4A4 /* Credentials.swift in Sources */,
+				D728E2112BC88B5A04E83D9E /* MobileApp.swift in Sources */,
+				DD63122AC2BA54DC44399CD9 /* NotificationScheduler.swift in Sources */,
+				7DC63F201A057DDDEB53AD3D /* OnboardingView.swift in Sources */,
+				6A6AEE32BBDD691088B95B44 /* SettingsView.swift in Sources */,
+				980A3CC1B0083E62AC8975D2 /* SharedDataStore.swift in Sources */,
+				186C30F7A3052389588142CB /* UsageData.swift in Sources */,
+				A756C5AC8CD293A6772BEE8C /* UsageDetailView.swift in Sources */,
+				C65BCF3BB25C077CCB26A9D3 /* UsageRingView.swift in Sources */,
+				5CF102A226FAE91C743B1C90 /* UsageService.swift in Sources */,
+				0338330CCFED53F78CEB1539 /* UsageViewModel.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3073485C2A4E02CB11E686CF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				26F7091EDF288921A77942A4 /* CloudSyncService.swift in Sources */,
+				6DD68E3F9109C31E2CF12796 /* Constants.swift in Sources */,
+				383556775ADD6A69B6829529 /* Credentials.swift in Sources */,
+				E80CD46AD82833DC2DDF1DE8 /* LockScreenWidget.swift in Sources */,
+				D8D4140A8C8C3EF3923948A8 /* NotificationScheduler.swift in Sources */,
+				1A70F7C941381D72863544E0 /* SharedDataStore.swift in Sources */,
+				557B028245A87B741F1CB572 /* UsageData.swift in Sources */,
+				AE3C65F764FB1311D373D841 /* UsageDetailView.swift in Sources */,
+				CD6B5E7A06411EB6FA7F05BC /* UsageRingView.swift in Sources */,
+				715C00D65C33A232B9E306AF /* UsageService.swift in Sources */,
+				55C0DBF68AE00594AB569B73 /* UsageTimelineProvider.swift in Sources */,
+				FF516BB2C8E4073486A249DA /* UsageViewModel.swift in Sources */,
+				46DB2708BEF92A50B73BA996 /* UsageWidget.swift in Sources */,
+				8B49903FAC5D360CF087DD67 /* UsageWidgetEntryView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		923CD34450AA56D1937B566B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F58F28AABBB50A60041E0BB9 /* CloudSyncService.swift in Sources */,
+				8CB5A0C85BF910AEE9423247 /* Constants.swift in Sources */,
+				BE311390DA66431FCE7C0B09 /* Credentials.swift in Sources */,
+				B349F6EE9A362756542981AD /* LockScreenWidget.swift in Sources */,
+				790B0A032179983FDB83A932 /* NotificationScheduler.swift in Sources */,
+				DF1E436BD68B148BBEA89898 /* SharedDataStore.swift in Sources */,
+				F24D6E1859C0AF9DA8A3D14A /* UsageData.swift in Sources */,
+				600413CF43C51C946333EB11 /* UsageDetailView.swift in Sources */,
+				592F6A95AD62BD99A45AAA02 /* UsageRingView.swift in Sources */,
+				144EDFF5C42C4AD4B50AC179 /* UsageService.swift in Sources */,
+				B6294E8E22CF99BB5F3524BF /* UsageTimelineProvider.swift in Sources */,
+				AFC73A315904627ADE42E676 /* UsageViewModel.swift in Sources */,
+				EDE3B23E1146F89588CDB761 /* UsageWidget.swift in Sources */,
+				896077C1E9FADFFA325F724F /* UsageWidgetEntryView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2E100A142CEAC88D0BB8078B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 14E0594C6512F46A4B3E039E /* ImpressionMac */;
+			targetProxy = 1A920D2214BFC97487AE8158 /* PBXContainerItemProxy */;
+		};
+		6C38A936C463352FBB92B0FB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 14E0594C6512F46A4B3E039E /* ImpressionMac */;
+			targetProxy = A37BC943CDDAE3246A862809 /* PBXContainerItemProxy */;
+		};
+		7BE44D6CE4485D96CEEBC547 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1BABAC8108DCA20F2B8FF6CC /* ImpressionMobile */;
+			targetProxy = 6BB266A8D98CEF08027324FA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		007DB1478C73DB99DCBFF3D8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ImpressionWidget/Widget.entitlements;
+				INFOPLIST_FILE = ImpressionWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.impression.mobile.widget;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		161D07FAA7E9C7CD83BD6592 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		26D4938D57FC5CA2B14FE09A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ImpressionWidget/Widget.entitlements;
+				INFOPLIST_FILE = ImpressionWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.impression.mobile.widget;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		380D4E3ECE59F7C018502C0C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ImpressionWidget/Widget.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = ImpressionWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.impression.mac.widget;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		524F635E1D3F0361B1D1C412 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.impression.ImpressionTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ImpressionMac.app/Contents/MacOS/ImpressionMac";
+			};
+			name = Debug;
+		};
+		5CAFAA9673A58A2BDA00B4C7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ImpressionWidget/Widget.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = ImpressionWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.impression.mac.widget;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		642F44D8FCA5277F13498D2C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.impression.ImpressionTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ImpressionMac.app/Contents/MacOS/ImpressionMac";
+			};
+			name = Release;
+		};
+		6CC2154370495D667DB10144 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ImpressionMobile/ImpressionMobile.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = ImpressionMobile/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.impression.mobile;
+				SDKROOT = iphoneos;
+				SUPPORTS_IPAD = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		71B29F92123281146924D45B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		92C0A325C8DD36A9FE3D8A73 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ImpressionMac/ImpressionMac.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = NO;
+				INFOPLIST_FILE = ImpressionMac/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.impression.mac;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		A51C3C46E1AFAE9836969D7F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ImpressionMobile/ImpressionMobile.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = ImpressionMobile/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.impression.mobile;
+				SDKROOT = iphoneos;
+				SUPPORTS_IPAD = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C0E727BB92F41C2FD168F311 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ImpressionMac/ImpressionMac.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = NO;
+				INFOPLIST_FILE = ImpressionMac/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.impression.mac;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		196A3E858EAD5419CD9BD343 /* Build configuration list for PBXProject "Impression" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				71B29F92123281146924D45B /* Debug */,
+				161D07FAA7E9C7CD83BD6592 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		2A686180A680BFA2AE85BCE9 /* Build configuration list for PBXNativeTarget "ImpressionMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				92C0A325C8DD36A9FE3D8A73 /* Debug */,
+				C0E727BB92F41C2FD168F311 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		AD95797A10705F200D813441 /* Build configuration list for PBXNativeTarget "ImpressionTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				524F635E1D3F0361B1D1C412 /* Debug */,
+				642F44D8FCA5277F13498D2C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B61FC36A1A56A71C6D19D575 /* Build configuration list for PBXNativeTarget "ImpressionMobile" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A51C3C46E1AFAE9836969D7F /* Debug */,
+				6CC2154370495D667DB10144 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C28FCF6C5DAAA15BEA3123A3 /* Build configuration list for PBXNativeTarget "ImpressionWidgetMobile" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				007DB1478C73DB99DCBFF3D8 /* Debug */,
+				26D4938D57FC5CA2B14FE09A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		CC65D99DAC6EC6924B69CB9C /* Build configuration list for PBXNativeTarget "ImpressionWidgetMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5CAFAA9673A58A2BDA00B4C7 /* Debug */,
+				380D4E3ECE59F7C018502C0C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E6B880A1C2C686E83A85DE12 /* Project object */;
+}

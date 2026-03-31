@@ -1,0 +1,122 @@
+name: Impression
+options:
+  bundleIdPrefix: com.impression
+  deploymentTarget:
+    macOS: "14.0"
+    iOS: "17.0"
+  xcodeVersion: "16.0"
+  groupSortPosition: top
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    DEVELOPMENT_TEAM: ""  # Set your team ID
+
+targets:
+  # macOS Menu Bar App
+  ImpressionMac:
+    type: application
+    platform: macOS
+    sources:
+      - path: ImpressionMac
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.impression.mac
+        INFOPLIST_FILE: ImpressionMac/Info.plist
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+        CODE_SIGN_ENTITLEMENTS: ImpressionMac/ImpressionMac.entitlements
+        ENABLE_APP_SANDBOX: NO
+        LD_RUNPATH_SEARCH_PATHS: "@executable_path/../Frameworks"
+    entitlements:
+      path: ImpressionMac/ImpressionMac.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.impression.usage
+        com.apple.developer.ubiquity-kvstore-identifier: $(TeamIdentifierPrefix)com.impression.mac
+        keychain-access-groups:
+          - $(AppIdentifierPrefix)com.impression.shared-keychain
+
+  # iOS App
+  ImpressionMobile:
+    type: application
+    platform: iOS
+    sources:
+      - path: ImpressionMobile
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.impression.mobile
+        INFOPLIST_FILE: ImpressionMobile/Info.plist
+        IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+        SUPPORTS_IPAD: YES
+        CODE_SIGN_ENTITLEMENTS: ImpressionMobile/ImpressionMobile.entitlements
+    entitlements:
+      path: ImpressionMobile/ImpressionMobile.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.impression.usage
+        com.apple.developer.ubiquity-kvstore-identifier: $(TeamIdentifierPrefix)com.impression.mobile
+        keychain-access-groups:
+          - $(AppIdentifierPrefix)com.impression.shared-keychain
+        com.apple.developer.associated-domains: []
+
+  # Widget Extension (macOS)
+  ImpressionWidgetMac:
+    type: app-extension
+    platform: macOS
+    sources:
+      - path: ImpressionWidget
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.impression.mac.widget
+        INFOPLIST_FILE: ImpressionWidget/Info.plist
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+        CODE_SIGN_ENTITLEMENTS: ImpressionWidget/Widget.entitlements
+    entitlements:
+      path: ImpressionWidget/Widget.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.impression.usage
+        com.apple.developer.ubiquity-kvstore-identifier: $(TeamIdentifierPrefix)com.impression.mac
+        keychain-access-groups:
+          - $(AppIdentifierPrefix)com.impression.shared-keychain
+    dependencies:
+      - target: ImpressionMac
+        embed: true
+
+  # Widget Extension (iOS)
+  ImpressionWidgetMobile:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: ImpressionWidget
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.impression.mobile.widget
+        INFOPLIST_FILE: ImpressionWidget/Info.plist
+        IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+        CODE_SIGN_ENTITLEMENTS: ImpressionWidget/Widget.entitlements
+    entitlements:
+      path: ImpressionWidget/Widget.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.impression.usage
+        com.apple.developer.ubiquity-kvstore-identifier: $(TeamIdentifierPrefix)com.impression.mobile
+        keychain-access-groups:
+          - $(AppIdentifierPrefix)com.impression.shared-keychain
+    dependencies:
+      - target: ImpressionMobile
+        embed: true
+
+  # Tests
+  ImpressionTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: ImpressionTests
+      - path: Shared
+    dependencies:
+      - target: ImpressionMac
