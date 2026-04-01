@@ -41,10 +41,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         // Request notification permission
-        Task { await viewModel.requestNotificationPermission() }
+        Task {
+            let granted = await viewModel.requestNotificationPermission()
+            NSLog("[Impression] Notification permission: \(granted)")
+        }
 
-        // Observe snapshot changes to update icon
-        // (In a full implementation, use Combine or @Observable observation)
+        // Log startup status
+        NSLog("[Impression] App launched. Token status: \(viewModel.tokenStatus)")
     }
 
     @objc private func togglePopover() {

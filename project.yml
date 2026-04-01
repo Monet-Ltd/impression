@@ -10,7 +10,8 @@ options:
 settings:
   base:
     SWIFT_VERSION: "6.0"
-    DEVELOPMENT_TEAM: ""  # Set your team ID
+    DEVELOPMENT_TEAM: "522ND7S942"
+    CODE_SIGN_STYLE: Automatic
 
 targets:
   # macOS Menu Bar App
@@ -33,9 +34,6 @@ targets:
       properties:
         com.apple.security.application-groups:
           - group.com.impression.usage
-        com.apple.developer.ubiquity-kvstore-identifier: $(TeamIdentifierPrefix)com.impression.mac
-        keychain-access-groups:
-          - $(AppIdentifierPrefix)com.impression.shared-keychain
 
   # iOS App
   ImpressionMobile:
@@ -56,10 +54,6 @@ targets:
       properties:
         com.apple.security.application-groups:
           - group.com.impression.usage
-        com.apple.developer.ubiquity-kvstore-identifier: $(TeamIdentifierPrefix)com.impression.mobile
-        keychain-access-groups:
-          - $(AppIdentifierPrefix)com.impression.shared-keychain
-        com.apple.developer.associated-domains: []
 
   # Widget Extension (macOS)
   ImpressionWidgetMac:
@@ -79,9 +73,6 @@ targets:
       properties:
         com.apple.security.application-groups:
           - group.com.impression.usage
-        com.apple.developer.ubiquity-kvstore-identifier: $(TeamIdentifierPrefix)com.impression.mac
-        keychain-access-groups:
-          - $(AppIdentifierPrefix)com.impression.shared-keychain
     dependencies:
       - target: ImpressionMac
         embed: true
@@ -104,9 +95,6 @@ targets:
       properties:
         com.apple.security.application-groups:
           - group.com.impression.usage
-        com.apple.developer.ubiquity-kvstore-identifier: $(TeamIdentifierPrefix)com.impression.mobile
-        keychain-access-groups:
-          - $(AppIdentifierPrefix)com.impression.shared-keychain
     dependencies:
       - target: ImpressionMobile
         embed: true

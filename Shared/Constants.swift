@@ -9,6 +9,7 @@ enum AppConstants {
     static let usageEndpoint = URL(string: "https://api.anthropic.com/api/oauth/usage")!
     static let messagesEndpoint = URL(string: "https://api.anthropic.com/v1/messages")!
     static let credentialsPath = NSHomeDirectory() + "/.claude/.credentials.json"
+    static let claudeKeychainServices = ["Claude Code-credentials", "Claude Code"]
 
     static let defaultRefreshInterval: TimeInterval = 120
     static let minRefreshInterval: TimeInterval = 60

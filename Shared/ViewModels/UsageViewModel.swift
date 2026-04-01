@@ -93,6 +93,13 @@ final class UsageViewModel {
             let newSnapshot = try await usageService.fetch(token: token)
             self.snapshot = newSnapshot
             self.isLoading = false
+            NSLog("[Impression] Fetched: session=\(Int(newSnapshot.sessionUtilization))%% weekly=\(Int(newSnapshot.weeklyUtilization))%% source=\(newSnapshot.source.rawValue)")
+            if let sr = newSnapshot.sessionResetsAt {
+                NSLog("[Impression] Session resets at: \(sr)")
+            }
+            if let wr = newSnapshot.weeklyResetsAt {
+                NSLog("[Impression] Weekly resets at: \(wr)")
+            }
 
             // Persist locally and to iCloud
             dataStore.writeSnapshot(newSnapshot)
