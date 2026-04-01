@@ -10,6 +10,7 @@ actor UsageService {
     enum FetchError: Error {
         case noToken
         case rateLimited
+        case unauthorized   // 401: token expired or invalid
         case networkError(Error)
         case invalidResponse
     }
@@ -63,6 +64,9 @@ actor UsageService {
         if httpResponse.statusCode == 429 {
             throw FetchError.rateLimited
         }
+        if httpResponse.statusCode == 401 {
+            throw FetchError.unauthorized
+        }
 
         guard httpResponse.statusCode == 200 else {
             throw FetchError.invalidResponse
@@ -108,6 +112,9 @@ actor UsageService {
 
         if httpResponse.statusCode == 429 {
             throw FetchError.rateLimited
+        }
+        if httpResponse.statusCode == 401 {
+            throw FetchError.unauthorized
         }
 
         // Parse rate-limit headers (0.0 - 1.0 scale, convert to 0-100)

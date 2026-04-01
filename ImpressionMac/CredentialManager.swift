@@ -10,11 +10,11 @@ final class CredentialManager {
     private let filePaths: [String]
     private var fileDescriptor: Int32 = -1
     private var dispatchSource: DispatchSourceFileSystemObject?
-    private let onChange: (String, Date?) -> Void
+    private let onChange: @Sendable (String, Date?) -> Void
     private var pollingTimer: Timer?
     private var lastKnownToken: String?
 
-    init(onChange: @escaping (String, Date?) -> Void) {
+    init(onChange: @escaping @Sendable (String, Date?) -> Void) {
         self.filePaths = [
             NSHomeDirectory() + "/.claude/.credentials.json",
             NSHomeDirectory() + "/.claude/credentials.json",
@@ -104,9 +104,15 @@ final class CredentialManager {
     // MARK: - Emit change only when token actually differs
 
     private func emitChange(_ creds: OAuthCredentials) {
-        onChange(creds.accessToken, creds.expiresAtDate)
-        CloudSyncService.shared.writeTokenToKeychain(creds.accessToken)
-        if let expiry = creds.expiresAtDate {
+        let token = creds.accessToken
+        let expiry = creds.expiresAtDate
+        // onChange accesses @MainActor-isolated viewModel; must dispatch to main
+        let cb = onChange
+        DispatchQueue.main.async {
+            cb(token, expiry)
+        }
+        CloudSyncService.shared.writeTokenToKeychain(token)
+        if let expiry {
             CloudSyncService.shared.writeTokenExpiry(expiry)
         }
     }
