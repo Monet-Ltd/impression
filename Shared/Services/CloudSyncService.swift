@@ -2,8 +2,8 @@ import Foundation
 import Security
 
 /// Handles iCloud Keychain (token sync) and NSUbiquitousKeyValueStore (usage data sync).
-final class CloudSyncService {
-    static let shared = CloudSyncService()
+final class CloudSyncService: @unchecked Sendable {
+    nonisolated(unsafe) static let shared = CloudSyncService()
 
     private let kvStore = NSUbiquitousKeyValueStore.default
     private let encoder = JSONEncoder()

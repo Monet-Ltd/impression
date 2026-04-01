@@ -2,8 +2,8 @@ import Foundation
 import WidgetKit
 
 /// Local App Group UserDefaults for sharing data between main app and widget extension.
-final class SharedDataStore {
-    static let shared = SharedDataStore()
+final class SharedDataStore: @unchecked Sendable {
+    nonisolated(unsafe) static let shared = SharedDataStore()
 
     private let defaults: UserDefaults
     private let encoder = JSONEncoder()

@@ -1,7 +1,7 @@
 import Foundation
 import Combine
 
-@Observable
+@MainActor @Observable
 final class UsageViewModel {
     var snapshot: UsageSnapshot = .empty
     var isLoading = false
@@ -91,10 +91,8 @@ final class UsageViewModel {
 
         do {
             let newSnapshot = try await usageService.fetch(token: token)
-            await MainActor.run {
-                self.snapshot = newSnapshot
-                self.isLoading = false
-            }
+            self.snapshot = newSnapshot
+            self.isLoading = false
 
             // Persist locally and to iCloud
             dataStore.writeSnapshot(newSnapshot)
@@ -125,16 +123,13 @@ final class UsageViewModel {
                 rescheduleTimer(interval: recommendedInterval)
             }
         } catch {
-            await MainActor.run {
-                self.isLoading = false
-                // Show cached data from iCloud if available
-                if let cached = cloudSync.readSnapshot() {
-                    self.snapshot = cached
-                } else if let local = dataStore.readSnapshot() {
-                    self.snapshot = local
-                }
-                self.error = error.localizedDescription
+            self.isLoading = false
+            if let cached = cloudSync.readSnapshot() {
+                self.snapshot = cached
+            } else if let local = dataStore.readSnapshot() {
+                self.snapshot = local
             }
+            self.error = error.localizedDescription
         }
     }
 
