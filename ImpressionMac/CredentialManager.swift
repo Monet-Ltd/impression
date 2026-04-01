@@ -12,6 +12,7 @@ final class CredentialManager {
     private var dispatchSource: DispatchSourceFileSystemObject?
     private let onChange: (String, Date?) -> Void
     private var pollingTimer: Timer?
+    private var lastKnownToken: String?
 
     init(onChange: @escaping (String, Date?) -> Void) {
         self.filePaths = [
@@ -28,15 +29,9 @@ final class CredentialManager {
     // MARK: - Read credentials from best available source
 
     func readCredentials() -> OAuthCredentials? {
-        // Try Keychain first
-        if let creds = readFromKeychain() {
-            return creds
-        }
-        // Try file paths
+        if let creds = readFromKeychain() { return creds }
         for path in filePaths {
-            if let creds = readFromFile(path) {
-                return creds
-            }
+            if let creds = readFromFile(path) { return creds }
         }
         return nil
     }
@@ -44,13 +39,8 @@ final class CredentialManager {
     // MARK: - Keychain reading
 
     private func readFromKeychain() -> OAuthCredentials? {
-        // Try the standard service name
-        if let creds = readKeychainService("Claude Code-credentials") {
-            return creds
-        }
-        // Try hashed variant (CLI v2.1.52+)
-        if let creds = readKeychainService("Claude Code") {
-            return creds
+        for service in AppConstants.claudeKeychainServices {
+            if let creds = readKeychainService(service) { return creds }
         }
         return nil
     }
@@ -65,10 +55,8 @@ final class CredentialManager {
 
         var result: AnyObject?
         let status = SecItemCopyMatching(query as CFDictionary, &result)
-
         guard status == errSecSuccess, let data = result as? Data else { return nil }
 
-        // The keychain value is the full JSON string
         let file = try? JSONDecoder().decode(CredentialsFile.self, from: data)
         return file?.claudeAiOauth
     }
@@ -84,16 +72,13 @@ final class CredentialManager {
     // MARK: - Watching for changes
 
     func startWatching() {
-        // Read immediately from best source
+        // Read immediately
         if let creds = readCredentials() {
-            onChange(creds.accessToken, creds.expiresAtDate)
-            CloudSyncService.shared.writeTokenToKeychain(creds.accessToken)
-            if let expiry = creds.expiresAtDate {
-                CloudSyncService.shared.writeTokenExpiry(expiry)
-            }
+            lastKnownToken = creds.accessToken
+            emitChange(creds)
         }
 
-        // Watch for file changes (if file exists)
+        // Watch file if it exists
         for path in filePaths {
             if FileManager.default.fileExists(atPath: path) {
                 watchFile(path)
@@ -101,7 +86,7 @@ final class CredentialManager {
             }
         }
 
-        // No file found — poll Keychain periodically for token refresh
+        // No file — poll Keychain
         startKeychainPolling()
     }
 
@@ -116,18 +101,33 @@ final class CredentialManager {
         }
     }
 
+    // MARK: - Emit change only when token actually differs
+
+    private func emitChange(_ creds: OAuthCredentials) {
+        onChange(creds.accessToken, creds.expiresAtDate)
+        CloudSyncService.shared.writeTokenToKeychain(creds.accessToken)
+        if let expiry = creds.expiresAtDate {
+            CloudSyncService.shared.writeTokenExpiry(expiry)
+        }
+    }
+
+    private func checkAndEmitIfChanged() {
+        guard let creds = readCredentials() else { return }
+
+        if creds.accessToken != lastKnownToken {
+            NSLog("[Impression] Token changed — re-emitting")
+            lastKnownToken = creds.accessToken
+            emitChange(creds)
+        } else if creds.isExpired {
+            NSLog("[Impression] Token expired — Claude Code may not be running")
+        }
+    }
+
     // MARK: - Keychain polling (when no credentials file exists)
 
     private func startKeychainPolling() {
         pollingTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
-            guard let self else { return }
-            if let creds = self.readFromKeychain() {
-                self.onChange(creds.accessToken, creds.expiresAtDate)
-                CloudSyncService.shared.writeTokenToKeychain(creds.accessToken)
-                if let expiry = creds.expiresAtDate {
-                    CloudSyncService.shared.writeTokenExpiry(expiry)
-                }
-            }
+            self?.checkAndEmitIfChanged()
         }
     }
 
@@ -144,15 +144,8 @@ final class CredentialManager {
         )
 
         source.setEventHandler { [weak self] in
-            guard let self else { return }
             DispatchQueue.global().asyncAfter(deadline: .now() + 0.5) {
-                if let creds = self.readCredentials() {
-                    self.onChange(creds.accessToken, creds.expiresAtDate)
-                    CloudSyncService.shared.writeTokenToKeychain(creds.accessToken)
-                    if let expiry = creds.expiresAtDate {
-                        CloudSyncService.shared.writeTokenExpiry(expiry)
-                    }
-                }
+                self?.checkAndEmitIfChanged()
             }
         }
 

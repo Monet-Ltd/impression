@@ -36,6 +36,7 @@ final class UsageViewModel {
     // MARK: - Token Management
 
     func setToken(_ token: String, expiresAt: Date? = nil) {
+        let tokenChanged = (self.token != token)
         self.token = token
         self.tokenStatus = .valid
         cloudSync.writeTokenToKeychain(token)
@@ -43,6 +44,11 @@ final class UsageViewModel {
             cloudSync.writeTokenExpiry(expiresAt)
             updateTokenStatus(expiresAt: expiresAt)
             Task { await notificationScheduler.scheduleTokenExpiryReminder(expiresAt: expiresAt) }
+        }
+        // Token changed → immediately fetch fresh usage data
+        if tokenChanged {
+            NSLog("[Impression] Token changed, fetching immediately")
+            Task { await fetchOnce() }
         }
     }
 
