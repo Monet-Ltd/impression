@@ -28,3 +28,4 @@ Packages/
 # Environment
 .env
 .env.local
+default.profraw

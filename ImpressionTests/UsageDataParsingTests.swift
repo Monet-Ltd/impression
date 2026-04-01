@@ -74,7 +74,7 @@ final class UsageDataParsingTests: XCTestCase {
           "claudeAiOauth": {
             "accessToken": "sk-ant-oat01-test",
             "refreshToken": "sk-ant-ort01-test",
-            "expiresAt": 1743465600000,
+            "expiresAt": \(Int64((Date().timeIntervalSince1970 + 86400) * 1000)),
             "scopes": ["user:profile"]
           }
         }
@@ -83,7 +83,7 @@ final class UsageDataParsingTests: XCTestCase {
         let file = try JSONDecoder().decode(CredentialsFile.self, from: json)
         XCTAssertEqual(file.claudeAiOauth?.accessToken, "sk-ant-oat01-test")
         XCTAssertNotNil(file.claudeAiOauth?.expiresAtDate)
-        XCTAssertFalse(file.claudeAiOauth?.isExpired ?? true) // 2025-04-01, not expired yet
+        XCTAssertFalse(file.claudeAiOauth?.isExpired ?? true) // expires tomorrow
     }
 
     func testUsageColorThresholds() {

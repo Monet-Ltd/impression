@@ -7,6 +7,7 @@ final class UsageViewModel {
     var isLoading = false
     var error: String?
     var tokenStatus: TokenStatus = .unknown
+    private var hasSentFirstStatusNotification = false
 
     enum TokenStatus: Equatable {
         case unknown
@@ -93,6 +94,13 @@ final class UsageViewModel {
             let newSnapshot = try await usageService.fetch(token: token)
             self.snapshot = newSnapshot
             self.isLoading = false
+            NSLog("[Impression] Fetched: session=\(Int(newSnapshot.sessionUtilization))%% weekly=\(Int(newSnapshot.weeklyUtilization))%% source=\(newSnapshot.source.rawValue)")
+            if let sr = newSnapshot.sessionResetsAt {
+                NSLog("[Impression] Session resets at: \(sr)")
+            }
+            if let wr = newSnapshot.weeklyResetsAt {
+                NSLog("[Impression] Weekly resets at: \(wr)")
+            }
 
             // Persist locally and to iCloud
             dataStore.writeSnapshot(newSnapshot)
@@ -106,6 +114,12 @@ final class UsageViewModel {
                 if let weeklyReset = newSnapshot.weeklyResetsAt {
                     await notificationScheduler.scheduleResetNotification(type: .weekly, resetsAt: weeklyReset)
                 }
+            }
+
+            // Send status notification on first successful fetch
+            if !hasSentFirstStatusNotification {
+                hasSentFirstStatusNotification = true
+                await notificationScheduler.sendStatusNotification(snapshot: newSnapshot)
             }
 
             // Check threshold warnings
