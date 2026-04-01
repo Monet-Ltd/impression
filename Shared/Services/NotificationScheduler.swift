@@ -3,6 +3,8 @@ import UserNotifications
 
 actor NotificationScheduler {
     private var scheduledResetIDs: Set<String> = []
+    private var scheduledResetDates: [String: Date] = [:]  // tracks last scheduled date per ID
+    private var sentThresholdIDs: Set<String> = []
     private var unPermission = false
 
     func requestPermission() async -> Bool {
@@ -22,6 +24,9 @@ actor NotificationScheduler {
 
     func scheduleResetNotification(type: ResetType, resetsAt: Date) {
         guard resetsAt > Date() else { return }
+        // Skip if already scheduled for this exact reset time (prevents duplicate timers on each fetch)
+        guard scheduledResetDates[type.notificationID] != resetsAt else { return }
+        scheduledResetDates[type.notificationID] = resetsAt
 
         if unPermission {
             scheduleViaUN(type: type, resetsAt: resetsAt)
@@ -91,17 +96,29 @@ actor NotificationScheduler {
 
     func checkThresholds(snapshot: UsageSnapshot, warningAt: Double, criticalAt: Double) {
         if snapshot.sessionUtilization >= criticalAt {
-            sendNotificationNow(
-                id: "session-critical",
-                title: "Session 即將耗盡",
-                body: formatResetTime(snapshot.sessionResetsAt)
-            )
+            if !sentThresholdIDs.contains("session-critical") {
+                sentThresholdIDs.insert("session-critical")
+                sendNotificationNow(
+                    id: "session-critical",
+                    title: "Session 即將耗盡",
+                    body: formatResetTime(snapshot.sessionResetsAt)
+                )
+            }
         } else if snapshot.sessionUtilization >= warningAt {
-            sendNotificationNow(
-                id: "session-warning",
-                title: "Session 已用 \(Int(snapshot.sessionUtilization))%",
-                body: "預估剩餘約 1 小時"
-            )
+            // Dropped below critical → allow re-notify if it climbs back
+            sentThresholdIDs.remove("session-critical")
+            if !sentThresholdIDs.contains("session-warning") {
+                sentThresholdIDs.insert("session-warning")
+                sendNotificationNow(
+                    id: "session-warning",
+                    title: "Session 已用 \(Int(snapshot.sessionUtilization))%",
+                    body: "預估剩餘約 1 小時"
+                )
+            }
+        } else {
+            // Usage dropped below warning → reset both so next crossing triggers again
+            sentThresholdIDs.remove("session-warning")
+            sentThresholdIDs.remove("session-critical")
         }
     }
 
@@ -191,6 +208,7 @@ actor NotificationScheduler {
     func cancelAll() {
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
         scheduledResetIDs.removeAll()
+        scheduledResetDates.removeAll()
     }
 
     enum ResetType {

@@ -45,10 +45,10 @@ final class UsageViewModel {
             updateTokenStatus(expiresAt: expiresAt)
             Task { await notificationScheduler.scheduleTokenExpiryReminder(expiresAt: expiresAt) }
         }
-        // Token changed → immediately fetch fresh usage data
+        // Token changed → start/restart polling (fetches immediately + restarts timer)
         if tokenChanged {
-            NSLog("[Impression] Token changed, fetching immediately")
-            Task { await fetchOnce() }
+            NSLog("[Impression] Token changed, starting polling")
+            startPolling()
         }
     }
 
@@ -142,6 +142,10 @@ final class UsageViewModel {
             if recommendedInterval != dataStore.refreshInterval {
                 rescheduleTimer(interval: recommendedInterval)
             }
+        } catch UsageService.FetchError.unauthorized {
+            self.isLoading = false
+            self.tokenStatus = .expired
+            self.error = "Token 已失效，請重新執行 claude login"
         } catch {
             self.isLoading = false
             if let cached = cloudSync.readSnapshot() {
@@ -156,9 +160,11 @@ final class UsageViewModel {
     private func rescheduleTimer(interval: TimeInterval? = nil) {
         timer?.invalidate()
         let iv = interval ?? dataStore.refreshInterval
-        timer = Timer.scheduledTimer(withTimeInterval: iv, repeats: true) { [weak self] _ in
+        let newTimer = Timer(timeInterval: iv, repeats: true) { [weak self] _ in
             Task { await self?.fetchOnce() }
         }
+        RunLoop.main.add(newTimer, forMode: .common)
+        timer = newTimer
     }
 
     // MARK: - Request notification permission

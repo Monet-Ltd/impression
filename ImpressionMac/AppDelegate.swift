@@ -27,18 +27,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             rootView: MacPopoverView(viewModel: viewModel, onQuit: { NSApp.terminate(nil) })
         )
 
-        // Setup credential manager
-        credentialManager = CredentialManager { [weak self] token, expiresAt in
-            self?.viewModel.setToken(token, expiresAt: expiresAt)
-            self?.viewModel.startPolling()
-        }
-        credentialManager?.startWatching()
-
-        // Try loading existing token
+        // Try loading existing token first, before CredentialManager fires its callback
         viewModel.loadToken()
         if viewModel.tokenStatus == .valid || viewModel.tokenStatus != .notFound {
             viewModel.startPolling()
         }
+
+        // Setup credential manager; setToken handles startPolling when token changes
+        credentialManager = CredentialManager { [weak self] token, expiresAt in
+            self?.viewModel.setToken(token, expiresAt: expiresAt)
+        }
+        credentialManager?.startWatching()
 
         // Request notification permission
         Task {
