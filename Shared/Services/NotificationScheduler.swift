@@ -139,6 +139,27 @@ actor NotificationScheduler {
         }
     }
 
+    // MARK: - Status notification (app sends on first fetch)
+
+    func sendStatusNotification(snapshot: UsageSnapshot) {
+        let sessionCD = formatCountdown(snapshot.sessionResetsAt) ?? "N/A"
+        let weeklyCD = formatCountdown(snapshot.weeklyResetsAt) ?? "N/A"
+        let title = "Session \(Int(snapshot.sessionUtilization))% · Weekly \(Int(snapshot.weeklyUtilization))%"
+        let body = "Session 重置: \(sessionCD) | Weekly 重置: \(weeklyCD)"
+        sendNotificationNow(id: "status-update", title: title, body: body)
+    }
+
+    private func formatCountdown(_ date: Date?) -> String? {
+        guard let date, date > Date() else { return nil }
+        let interval = date.timeIntervalSinceNow
+        let hours = Int(interval) / 3600
+        let minutes = (Int(interval) % 3600) / 60
+        if hours >= 24 {
+            return "\(hours / 24)d \(hours % 24)h"
+        }
+        return "\(hours)h \(minutes)m"
+    }
+
     // MARK: - Send immediately
 
     private func sendNotificationNow(id: String, title: String, body: String) {

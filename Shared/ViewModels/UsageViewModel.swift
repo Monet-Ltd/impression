@@ -7,6 +7,7 @@ final class UsageViewModel {
     var isLoading = false
     var error: String?
     var tokenStatus: TokenStatus = .unknown
+    private var hasSentFirstStatusNotification = false
 
     enum TokenStatus: Equatable {
         case unknown
@@ -113,6 +114,12 @@ final class UsageViewModel {
                 if let weeklyReset = newSnapshot.weeklyResetsAt {
                     await notificationScheduler.scheduleResetNotification(type: .weekly, resetsAt: weeklyReset)
                 }
+            }
+
+            // Send status notification on first successful fetch
+            if !hasSentFirstStatusNotification {
+                hasSentFirstStatusNotification = true
+                await notificationScheduler.sendStatusNotification(snapshot: newSnapshot)
             }
 
             // Check threshold warnings
