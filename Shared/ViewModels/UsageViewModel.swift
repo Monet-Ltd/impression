@@ -314,7 +314,6 @@ final class UsageViewModel {
             return "Local"
         }
     }
-
     static func resolveClaudeToken(
         syncedToken: String?,
         syncedExpiry: Date?,
