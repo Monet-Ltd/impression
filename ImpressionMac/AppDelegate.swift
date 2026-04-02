@@ -1,7 +1,8 @@
 import SwiftUI
+import UserNotifications
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate, NSUserNotificationCenterDelegate {
     private var statusItem: NSStatusItem?
     private var popover = NSPopover()
     let viewModel = UsageViewModel()
@@ -10,6 +11,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Hide dock icon
         NSApp.setActivationPolicy(.accessory)
+        UNUserNotificationCenter.current().delegate = self
+        NSUserNotificationCenter.default.delegate = self
 
         // Setup menu bar
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -98,6 +101,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         Session \(session)% • Weekly \(weekly)%
         \(viewModel.sourceDisplayName)
         """
+    }
+
+    nonisolated func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        completionHandler([.banner, .list, .sound])
+    }
+
+    nonisolated func userNotificationCenter(
+        _ center: NSUserNotificationCenter,
+        shouldPresent notification: NSUserNotification
+    ) -> Bool {
+        true
     }
 }
 

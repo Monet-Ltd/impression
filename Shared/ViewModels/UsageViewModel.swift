@@ -219,6 +219,14 @@ final class UsageViewModel {
         await notificationScheduler.requestPermission()
     }
 
+    func sendTestNotification() async {
+        let delivered = await notificationScheduler.sendTestNotification()
+        if !delivered {
+            error = "Notifications are disabled for Impression"
+            onSnapshotChanged?()
+        }
+    }
+
     // MARK: - Helpers
 
     var sessionColor: UsageColor {
