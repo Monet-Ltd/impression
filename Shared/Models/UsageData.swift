@@ -1,5 +1,33 @@
 import Foundation
 
+enum UsageProviderKind: String, Codable, CaseIterable, Identifiable {
+    case claudeCode
+    case codexCLI
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .claudeCode: return "Claude Code"
+        case .codexCLI: return "Codex CLI"
+        }
+    }
+
+    var shortName: String {
+        switch self {
+        case .claudeCode: return "Claude"
+        case .codexCLI: return "Codex"
+        }
+    }
+
+    var primaryQuotaLabel: String { "Session (5h)" }
+    var secondaryQuotaLabel: String { "Weekly (7d)" }
+
+    var requiresToken: Bool {
+        self == .claudeCode
+    }
+}
+
 /// Represents the response from GET /api/oauth/usage
 struct UsageResponse: Codable {
     let fiveHour: UsageBucket?
@@ -61,6 +89,7 @@ struct FlexibleDouble: Codable, Equatable {
 
 /// Lightweight snapshot stored in App Group UserDefaults and iCloud KV store.
 struct UsageSnapshot: Codable, Equatable {
+    let provider: UsageProviderKind
     let sessionUtilization: Double      // 0-100
     let sessionResetsAt: Date?
     let weeklyUtilization: Double       // 0-100
@@ -69,23 +98,77 @@ struct UsageSnapshot: Codable, Equatable {
     let sonnetUtilization: Double?
     let fetchedAt: Date
     let source: FetchSource
+    let primaryLabel: String
+    let secondaryLabel: String
+    let remainingText: String?
 
     enum FetchSource: String, Codable {
         case oauthUsage     // from /api/oauth/usage
         case messageHeaders // from /v1/messages response headers
         case icloudCache    // from NSUbiquitousKeyValueStore
+        case codexSession   // from Codex local session telemetry
     }
 
-    static let empty = UsageSnapshot(
-        sessionUtilization: 0,
-        sessionResetsAt: nil,
-        weeklyUtilization: 0,
-        weeklyResetsAt: nil,
-        opusUtilization: nil,
-        sonnetUtilization: nil,
-        fetchedAt: .distantPast,
-        source: .icloudCache
-    )
+    init(
+        provider: UsageProviderKind = .claudeCode,
+        sessionUtilization: Double,
+        sessionResetsAt: Date?,
+        weeklyUtilization: Double,
+        weeklyResetsAt: Date?,
+        opusUtilization: Double?,
+        sonnetUtilization: Double?,
+        fetchedAt: Date,
+        source: FetchSource,
+        primaryLabel: String? = nil,
+        secondaryLabel: String? = nil,
+        remainingText: String? = nil
+    ) {
+        self.provider = provider
+        self.sessionUtilization = sessionUtilization
+        self.sessionResetsAt = sessionResetsAt
+        self.weeklyUtilization = weeklyUtilization
+        self.weeklyResetsAt = weeklyResetsAt
+        self.opusUtilization = opusUtilization
+        self.sonnetUtilization = sonnetUtilization
+        self.fetchedAt = fetchedAt
+        self.source = source
+        self.primaryLabel = primaryLabel ?? provider.primaryQuotaLabel
+        self.secondaryLabel = secondaryLabel ?? provider.secondaryQuotaLabel
+        self.remainingText = remainingText
+    }
+
+    static let empty = UsageSnapshot.empty(for: .claudeCode)
+
+    static func empty(for provider: UsageProviderKind) -> UsageSnapshot {
+        UsageSnapshot(
+            provider: provider,
+            sessionUtilization: 0,
+            sessionResetsAt: nil,
+            weeklyUtilization: 0,
+            weeklyResetsAt: nil,
+            opusUtilization: nil,
+            sonnetUtilization: nil,
+            fetchedAt: .distantPast,
+            source: .icloudCache
+        )
+    }
+
+    func withProvider(_ provider: UsageProviderKind) -> UsageSnapshot {
+        UsageSnapshot(
+            provider: provider,
+            sessionUtilization: sessionUtilization,
+            sessionResetsAt: sessionResetsAt,
+            weeklyUtilization: weeklyUtilization,
+            weeklyResetsAt: weeklyResetsAt,
+            opusUtilization: opusUtilization,
+            sonnetUtilization: sonnetUtilization,
+            fetchedAt: fetchedAt,
+            source: source,
+            primaryLabel: primaryLabel,
+            secondaryLabel: secondaryLabel,
+            remainingText: remainingText
+        )
+    }
 }
 
 extension ISO8601DateFormatter {

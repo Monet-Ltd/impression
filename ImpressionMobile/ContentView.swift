@@ -7,13 +7,13 @@ struct MobileContentView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if viewModel.tokenStatus == .notFound || viewModel.tokenStatus == .unknown {
+                if viewModel.requiresOnboarding {
                     MobileOnboardingView(viewModel: viewModel)
                 } else {
                     MobileDashboardView(viewModel: viewModel)
                 }
             }
-            .navigationTitle("Impression")
+            .navigationTitle(viewModel.providerShortName)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -38,6 +38,16 @@ struct MobileDashboardView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
+                Picker("Provider", selection: Binding(
+                    get: { viewModel.selectedProvider },
+                    set: { viewModel.selectProvider($0) }
+                )) {
+                    ForEach(UsageProviderKind.allCases) { provider in
+                        Text(provider.shortName).tag(provider)
+                    }
+                }
+                .pickerStyle(.segmented)
+
                 // Token status banner
                 tokenBanner
 
@@ -45,14 +55,14 @@ struct MobileDashboardView: View {
                 HStack(spacing: 32) {
                     UsageRingView(
                         utilization: viewModel.snapshot.sessionUtilization,
-                        label: "Session (5h)",
+                        label: viewModel.snapshot.primaryLabel,
                         countdown: viewModel.sessionResetCountdown,
                         lineWidth: 12,
                         size: 120
                     )
                     UsageRingView(
                         utilization: viewModel.snapshot.weeklyUtilization,
-                        label: "Weekly (7d)",
+                        label: viewModel.snapshot.secondaryLabel,
                         countdown: viewModel.weeklyResetCountdown,
                         lineWidth: 12,
                         size: 120
@@ -75,7 +85,11 @@ struct MobileDashboardView: View {
 
                 // Footer
                 HStack {
-                    if viewModel.snapshot.fetchedAt != .distantPast {
+                    if let remainingText = viewModel.snapshot.remainingText {
+                        Text(remainingText)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else if viewModel.snapshot.fetchedAt != .distantPast {
                         Text("Updated \(viewModel.snapshot.fetchedAt, style: .relative) ago")
                             .font(.caption)
                             .foregroundStyle(.tertiary)
@@ -133,6 +147,21 @@ struct MobileDashboardView: View {
             }
             .padding(12)
             .background(.red.opacity(0.15))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+
+        case .notRequired:
+            HStack {
+                Image(systemName: "terminal")
+                VStack(alignment: .leading) {
+                    Text("Using local Codex data")
+                        .font(.caption.bold())
+                    Text("Usage is read from recent Codex sessions on this Mac")
+                        .font(.caption2)
+                }
+                Spacer()
+            }
+            .padding(12)
+            .background(.teal.opacity(0.15))
             .clipShape(RoundedRectangle(cornerRadius: 8))
 
         default:

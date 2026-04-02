@@ -6,7 +6,7 @@ import Security
 /// 1. macOS Keychain (service: "Claude Code-credentials")
 /// 2. ~/.claude/.credentials.json file
 /// 3. ~/.claude/credentials.json file
-final class CredentialManager {
+final class CredentialManager: @unchecked Sendable {
     private let filePaths: [String]
     private var fileDescriptor: Int32 = -1
     private var dispatchSource: DispatchSourceFileSystemObject?
@@ -111,7 +111,7 @@ final class CredentialManager {
         DispatchQueue.main.async {
             cb(token, expiry)
         }
-        CloudSyncService.shared.writeTokenToKeychain(token)
+        _ = CloudSyncService.shared.writeTokenToKeychain(token)
         if let expiry {
             CloudSyncService.shared.writeTokenExpiry(expiry)
         }
@@ -150,7 +150,7 @@ final class CredentialManager {
         )
 
         source.setEventHandler { [weak self] in
-            DispatchQueue.global().asyncAfter(deadline: .now() + 0.5) {
+            DispatchQueue.global().asyncAfter(deadline: .now() + 0.5) { [weak self] in
                 self?.checkAndEmitIfChanged()
             }
         }

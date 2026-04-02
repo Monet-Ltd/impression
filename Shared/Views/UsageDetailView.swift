@@ -8,8 +8,13 @@ struct UsageDetailView: View {
         VStack(alignment: .leading, spacing: 16) {
             // Header
             HStack {
-                Text("Impression")
-                    .font(.headline)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Impression")
+                        .font(.headline)
+                    Text(viewModel.providerDisplayName)
+                        .font(.caption)
+                        .foregroundStyle(providerAccentColor)
+                }
                 Spacer()
                 if viewModel.isLoading {
                     ProgressView()
@@ -25,13 +30,13 @@ struct UsageDetailView: View {
             HStack(spacing: 24) {
                 UsageRingView(
                     utilization: viewModel.snapshot.sessionUtilization,
-                    label: "Session (5h)",
+                    label: viewModel.snapshot.primaryLabel,
                     countdown: viewModel.sessionResetCountdown,
                     size: 90
                 )
                 UsageRingView(
                     utilization: viewModel.snapshot.weeklyUtilization,
-                    label: "Weekly (7d)",
+                    label: viewModel.snapshot.secondaryLabel,
                     countdown: viewModel.weeklyResetCountdown,
                     size: 90
                 )
@@ -58,9 +63,15 @@ struct UsageDetailView: View {
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 } else {
-                    Text("Updated \(viewModel.snapshot.fetchedAt, style: .relative) ago")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
+                    if let remainingText = viewModel.snapshot.remainingText {
+                        Text(remainingText)
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                    } else {
+                        Text("Updated \(viewModel.snapshot.fetchedAt, style: .relative) ago")
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+                    }
                 }
                 Spacer()
                 // Token status badge for iOS
@@ -73,6 +84,11 @@ struct UsageDetailView: View {
     @ViewBuilder
     private var tokenStatusBadge: some View {
         switch viewModel.tokenStatus {
+        case .notRequired:
+            Label("Local", systemImage: "terminal")
+                .font(.caption2)
+                .foregroundStyle(providerAccentColor)
+
         case .expiresSoon(let date):
             Label {
                 Text("Expires \(date, style: .relative)")
@@ -89,6 +105,15 @@ struct UsageDetailView: View {
 
         default:
             EmptyView()
+        }
+    }
+
+    private var providerAccentColor: Color {
+        switch viewModel.selectedProvider {
+        case .claudeCode:
+            return Color(red: 0.85, green: 0.45, blue: 0.29)
+        case .codexCLI:
+            return Color(red: 0.06, green: 0.47, blue: 0.44)
         }
     }
 }

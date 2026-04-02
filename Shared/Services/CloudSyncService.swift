@@ -3,7 +3,7 @@ import Security
 
 /// Handles iCloud Keychain (token sync) and NSUbiquitousKeyValueStore (usage data sync).
 final class CloudSyncService: @unchecked Sendable {
-    nonisolated(unsafe) static let shared = CloudSyncService()
+    static let shared = CloudSyncService()
 
     private let kvStore = NSUbiquitousKeyValueStore.default
     private let encoder = JSONEncoder()
@@ -21,22 +21,33 @@ final class CloudSyncService: @unchecked Sendable {
 
     // MARK: - Usage Snapshot (NSUbiquitousKeyValueStore)
 
-    func writeSnapshot(_ snapshot: UsageSnapshot) {
+    func writeSnapshot(_ snapshot: UsageSnapshot, for provider: UsageProviderKind) {
         guard let data = try? encoder.encode(snapshot) else { return }
-        kvStore.set(data, forKey: AppConstants.iCloudKVStoreKey)
+        kvStore.set(data, forKey: AppConstants.snapshotStorageKey(for: provider))
         kvStore.synchronize()
     }
 
-    func readSnapshot() -> UsageSnapshot? {
-        guard let data = kvStore.data(forKey: AppConstants.iCloudKVStoreKey) else { return nil }
+    func readSnapshot(for provider: UsageProviderKind) -> UsageSnapshot? {
+        guard let data = kvStore.data(forKey: AppConstants.snapshotStorageKey(for: provider)) else { return nil }
         return try? decoder.decode(UsageSnapshot.self, from: data)
     }
 
-    var onSnapshotChanged: ((UsageSnapshot) -> Void)?
+    func writeSnapshot(_ snapshot: UsageSnapshot) {
+        writeSnapshot(snapshot, for: snapshot.provider)
+    }
+
+    func readSnapshot() -> UsageSnapshot? {
+        readSnapshot(for: .claudeCode)
+    }
+
+    var onSnapshotChanged: ((UsageProviderKind, UsageSnapshot) -> Void)?
 
     @objc private func kvStoreDidChange(_ notification: Notification) {
-        if let snapshot = readSnapshot() {
-            onSnapshotChanged?(snapshot)
+        guard let keys = notification.userInfo?[NSUbiquitousKeyValueStoreChangedKeysKey] as? [String] else { return }
+        for provider in UsageProviderKind.allCases where keys.contains(AppConstants.snapshotStorageKey(for: provider)) {
+            if let snapshot = readSnapshot(for: provider) {
+                onSnapshotChanged?(provider, snapshot)
+            }
         }
     }
 

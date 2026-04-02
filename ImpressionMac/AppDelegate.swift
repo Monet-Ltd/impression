@@ -14,6 +14,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Setup menu bar
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         updateMenuBarIcon()
+        viewModel.onSnapshotChanged = { [weak self] in
+            Task { @MainActor in
+                self?.updateMenuBarIcon()
+            }
+        }
 
         if let button = statusItem?.button {
             button.action = #selector(togglePopover)
@@ -29,13 +34,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Try loading existing token first, before CredentialManager fires its callback
         viewModel.loadToken()
-        if viewModel.tokenStatus == .valid || viewModel.tokenStatus != .notFound {
+        if !viewModel.requiresOnboarding {
             viewModel.startPolling()
         }
 
         // Setup credential manager; setToken handles startPolling when token changes
         credentialManager = CredentialManager { [weak self] token, expiresAt in
-            self?.viewModel.setToken(token, expiresAt: expiresAt)
+            Task { @MainActor [weak self] in
+                self?.viewModel.setToken(token, expiresAt: expiresAt)
+            }
         }
         credentialManager?.startWatching()
 
@@ -63,34 +70,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         let utilization = viewModel.snapshot.sessionUtilization
         let imageName: String
-        let tintColor: NSColor
 
-        switch UsageColor.from(utilization: utilization) {
-        case .green:
-            imageName = "gauge.with.dots.needle.33percent"
-            tintColor = .systemGreen
-        case .yellow:
-            imageName = "gauge.with.dots.needle.50percent"
-            tintColor = .systemYellow
-        case .orange:
-            imageName = "gauge.with.dots.needle.67percent"
-            tintColor = .systemOrange
-        case .red:
-            imageName = "exclamationmark.circle.fill"
-            tintColor = .systemRed
+        switch viewModel.selectedProvider {
+        case .claudeCode:
+            switch UsageColor.from(utilization: utilization) {
+            case .green:
+                imageName = "gauge.with.dots.needle.33percent"
+            case .yellow:
+                imageName = "gauge.with.dots.needle.50percent"
+            case .orange:
+                imageName = "gauge.with.dots.needle.67percent"
+            case .red:
+                imageName = "exclamationmark.circle.fill"
+            }
+        case .codexCLI:
+            imageName = "chevron.left.forwardslash.chevron.right"
         }
 
         if let image = NSImage(systemSymbolName: imageName, accessibilityDescription: "Usage") {
             let config = NSImage.SymbolConfiguration(pointSize: 16, weight: .regular)
-            let configured = image.withSymbolConfiguration(config)
+            let configured = image.withSymbolConfiguration(config) ?? image
+            configured.isTemplate = true
             button.image = configured
-            button.contentTintColor = tintColor
+            button.contentTintColor = nil
         }
 
         // Tooltip with quick stats
         let session = Int(viewModel.snapshot.sessionUtilization)
         let weekly = Int(viewModel.snapshot.weeklyUtilization)
-        button.toolTip = "Session: \(session)% | Weekly: \(weekly)%"
+        button.toolTip = "\(viewModel.providerDisplayName) | Session: \(session)% | Weekly: \(weekly)%"
     }
 }
 
@@ -102,7 +110,18 @@ struct MacPopoverView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if viewModel.tokenStatus == .notFound {
+            Picker("Provider", selection: Binding(
+                get: { viewModel.selectedProvider },
+                set: { viewModel.selectProvider($0) }
+            )) {
+                ForEach(UsageProviderKind.allCases) { provider in
+                    Text(provider.shortName).tag(provider)
+                }
+            }
+            .pickerStyle(.segmented)
+            .padding()
+
+            if viewModel.requiresOnboarding {
                 MacOnboardingView()
             } else {
                 UsageDetailView(viewModel: viewModel)

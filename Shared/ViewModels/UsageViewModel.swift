@@ -3,10 +3,12 @@ import Combine
 
 @MainActor @Observable
 final class UsageViewModel {
-    var snapshot: UsageSnapshot = .empty
+    var selectedProvider: UsageProviderKind
+    var snapshot: UsageSnapshot
     var isLoading = false
     var error: String?
     var tokenStatus: TokenStatus = .unknown
+    var onSnapshotChanged: (() -> Void)?
     private var hasSentFirstStatusNotification = false
 
     enum TokenStatus: Equatable {
@@ -15,9 +17,11 @@ final class UsageViewModel {
         case expiresSoon(Date)
         case expired
         case notFound
+        case notRequired
     }
 
     private let usageService = UsageService()
+    private let codexUsageService = CodexUsageService()
     private let notificationScheduler = NotificationScheduler()
     private let cloudSync = CloudSyncService.shared
     private let dataStore = SharedDataStore.shared
@@ -25,11 +29,24 @@ final class UsageViewModel {
     private var token: String?
 
     init() {
+        self.selectedProvider = dataStore.selectedProvider
+        self.snapshot = dataStore.readSnapshot(for: dataStore.selectedProvider)
+            ?? cloudSync.readSnapshot(for: dataStore.selectedProvider)
+            ?? .empty(for: dataStore.selectedProvider)
+
         // Listen for iCloud changes
-        cloudSync.onSnapshotChanged = { [weak self] snapshot in
+        cloudSync.onSnapshotChanged = { [weak self] provider, snapshot in
             Task { @MainActor in
-                self?.snapshot = snapshot
+                guard let self else { return }
+                if provider == self.selectedProvider {
+                    self.snapshot = snapshot
+                    self.onSnapshotChanged?()
+                }
             }
+        }
+
+        if selectedProvider == .codexCLI {
+            tokenStatus = .notRequired
         }
     }
 
@@ -39,7 +56,7 @@ final class UsageViewModel {
         let tokenChanged = (self.token != token)
         self.token = token
         self.tokenStatus = .valid
-        cloudSync.writeTokenToKeychain(token)
+        _ = cloudSync.writeTokenToKeychain(token)
         if let expiresAt {
             cloudSync.writeTokenExpiry(expiresAt)
             updateTokenStatus(expiresAt: expiresAt)
@@ -53,6 +70,11 @@ final class UsageViewModel {
     }
 
     func loadToken() {
+        guard selectedProvider.requiresToken else {
+            tokenStatus = .notRequired
+            return
+        }
+
         // Try iCloud Keychain first
         if let keychainToken = cloudSync.readTokenFromKeychain() {
             self.token = keychainToken
@@ -88,8 +110,9 @@ final class UsageViewModel {
     }
 
     func fetchOnce() async {
-        guard let token else {
+        if selectedProvider.requiresToken && token == nil {
             error = "No token"
+            tokenStatus = .notFound
             return
         }
 
@@ -97,10 +120,16 @@ final class UsageViewModel {
         error = nil
 
         do {
-            let newSnapshot = try await usageService.fetch(token: token)
+            let newSnapshot: UsageSnapshot
+            if selectedProvider == .claudeCode {
+                newSnapshot = try await usageService.fetch(token: token!)
+            } else {
+                newSnapshot = try await codexUsageService.fetch()
+            }
             self.snapshot = newSnapshot
             self.isLoading = false
-            NSLog("[Impression] Fetched: session=\(Int(newSnapshot.sessionUtilization))%% weekly=\(Int(newSnapshot.weeklyUtilization))%% source=\(newSnapshot.source.rawValue)")
+            onSnapshotChanged?()
+            NSLog("[Impression] Fetched provider=\(newSnapshot.provider.rawValue) session=\(Int(newSnapshot.sessionUtilization))%% weekly=\(Int(newSnapshot.weeklyUtilization))%% source=\(newSnapshot.source.rawValue)")
             if let sr = newSnapshot.sessionResetsAt {
                 NSLog("[Impression] Session resets at: \(sr)")
             }
@@ -109,11 +138,11 @@ final class UsageViewModel {
             }
 
             // Persist locally and to iCloud
-            dataStore.writeSnapshot(newSnapshot)
-            cloudSync.writeSnapshot(newSnapshot)
+            dataStore.writeSnapshot(newSnapshot, for: selectedProvider)
+            cloudSync.writeSnapshot(newSnapshot, for: selectedProvider)
 
             // Schedule reset notifications
-            if dataStore.resetNotificationsEnabled {
+            if dataStore.resetNotificationsEnabled && selectedProvider == .claudeCode {
                 if let sessionReset = newSnapshot.sessionResetsAt {
                     await notificationScheduler.scheduleResetNotification(type: .session, resetsAt: sessionReset)
                 }
@@ -138,7 +167,9 @@ final class UsageViewModel {
             }
 
             // Adjust polling interval based on backoff
-            let recommendedInterval = await usageService.recommendedInterval
+            let recommendedInterval = selectedProvider == .claudeCode
+                ? await usageService.recommendedInterval
+                : dataStore.refreshInterval
             if recommendedInterval != dataStore.refreshInterval {
                 rescheduleTimer(interval: recommendedInterval)
             }
@@ -148,12 +179,15 @@ final class UsageViewModel {
             self.error = "Token 已失效，請重新執行 claude login"
         } catch {
             self.isLoading = false
-            if let cached = cloudSync.readSnapshot() {
+            if let cached = cloudSync.readSnapshot(for: selectedProvider) {
                 self.snapshot = cached
-            } else if let local = dataStore.readSnapshot() {
+            } else if let local = dataStore.readSnapshot(for: selectedProvider) {
                 self.snapshot = local
+            } else {
+                self.snapshot = .empty(for: selectedProvider)
             }
             self.error = error.localizedDescription
+            onSnapshotChanged?()
         }
     }
 
@@ -204,6 +238,39 @@ final class UsageViewModel {
             return "\(days)d \(remainingHours)h"
         }
         return "\(hours)h \(minutes)m"
+    }
+
+    var requiresOnboarding: Bool {
+        selectedProvider.requiresToken && (tokenStatus == .notFound || tokenStatus == .unknown || tokenStatus == .expired)
+    }
+
+    var providerDisplayName: String {
+        selectedProvider.displayName
+    }
+
+    var providerShortName: String {
+        selectedProvider.shortName
+    }
+
+    func selectProvider(_ provider: UsageProviderKind) {
+        guard selectedProvider != provider else { return }
+        stopPolling()
+        selectedProvider = provider
+        dataStore.selectedProvider = provider
+        error = nil
+        snapshot = dataStore.readSnapshot(for: provider)
+            ?? cloudSync.readSnapshot(for: provider)
+            ?? .empty(for: provider)
+        tokenStatus = provider.requiresToken ? .unknown : .notRequired
+        onSnapshotChanged?()
+        if provider.requiresToken {
+            loadToken()
+            if !requiresOnboarding {
+                startPolling()
+            }
+        } else {
+            startPolling()
+        }
     }
 }
 

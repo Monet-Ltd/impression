@@ -1,5 +1,6 @@
 import SwiftUI
 import WidgetKit
+import AppIntents
 
 @main
 struct ImpressionWidgetBundle: WidgetBundle {
@@ -15,12 +16,12 @@ struct UsageWidget: Widget {
     let kind = "UsageWidget"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: UsageTimelineProvider()) { entry in
+        AppIntentConfiguration(kind: kind, intent: UsageWidgetConfigurationIntent.self, provider: UsageTimelineProvider()) { entry in
             UsageWidgetEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
-        .configurationDisplayName("Claude Usage")
-        .description("Monitor your Claude Code session and weekly limits.")
+        .configurationDisplayName("Usage Monitor")
+        .description("Monitor Claude Code or Codex CLI session and weekly limits.")
         .supportedFamilies(supportedFamilies)
     }
 
@@ -33,5 +34,35 @@ struct UsageWidget: Widget {
         families.append(.systemLarge)
         #endif
         return families
+    }
+}
+
+enum UsageWidgetProviderOption: String, AppEnum {
+    case claudeCode
+    case codexCLI
+
+    static let typeDisplayRepresentation = TypeDisplayRepresentation(name: "Provider")
+    static let caseDisplayRepresentations: [UsageWidgetProviderOption: DisplayRepresentation] = [
+        .claudeCode: DisplayRepresentation(title: "Claude Code"),
+        .codexCLI: DisplayRepresentation(title: "Codex CLI"),
+    ]
+
+    var providerKind: UsageProviderKind {
+        switch self {
+        case .claudeCode: return .claudeCode
+        case .codexCLI: return .codexCLI
+        }
+    }
+}
+
+struct UsageWidgetConfigurationIntent: WidgetConfigurationIntent {
+    static let title: LocalizedStringResource = "Usage Provider"
+    static let description = IntentDescription("Choose which provider this widget shows.")
+
+    @Parameter(title: "Provider")
+    var provider: UsageWidgetProviderOption?
+
+    init() {
+        provider = .claudeCode
     }
 }

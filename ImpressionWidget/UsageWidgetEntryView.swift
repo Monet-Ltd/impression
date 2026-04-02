@@ -46,8 +46,9 @@ struct MediumWidgetView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("Impression")
+                Text(snapshot.provider.shortName)
                     .font(.caption.bold())
+                    .foregroundStyle(providerAccentColor)
                 Spacer()
                 Text("\(Int(snapshot.sessionUtilization))%")
                     .font(.title3.bold())
@@ -56,7 +57,7 @@ struct MediumWidgetView: View {
             }
 
             HStack(spacing: 4) {
-                Text("Session (5h)")
+                Text(snapshot.primaryLabel)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                 Spacer()
@@ -69,7 +70,7 @@ struct MediumWidgetView: View {
             WidgetProgressBar(value: snapshot.sessionUtilization / 100, color: UsageColor.from(utilization: snapshot.sessionUtilization).swiftUIColor)
 
             HStack(spacing: 4) {
-                Text("Weekly (7d)")
+                Text(snapshot.secondaryLabel)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                 Spacer()
@@ -82,7 +83,11 @@ struct MediumWidgetView: View {
             WidgetProgressBar(value: snapshot.weeklyUtilization / 100, color: UsageColor.from(utilization: snapshot.weeklyUtilization).swiftUIColor)
 
             HStack(spacing: 16) {
-                if let opus = snapshot.opusUtilization {
+                if let remainingText = snapshot.remainingText {
+                    Text(remainingText)
+                        .font(.caption2)
+                        .foregroundStyle(providerAccentColor)
+                } else if let opus = snapshot.opusUtilization {
                     HStack(spacing: 4) {
                         Text("Opus")
                             .font(.caption2)
@@ -105,6 +110,15 @@ struct MediumWidgetView: View {
             }
         }
     }
+
+    private var providerAccentColor: Color {
+        switch snapshot.provider {
+        case .claudeCode:
+            return Color(red: 0.85, green: 0.45, blue: 0.29)
+        case .codexCLI:
+            return Color(red: 0.06, green: 0.47, blue: 0.44)
+        }
+    }
 }
 
 // MARK: - Large Widget
@@ -114,8 +128,9 @@ struct LargeWidgetView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Text("Impression")
+            Text(snapshot.provider.displayName)
                 .font(.headline)
+                .foregroundStyle(providerAccentColor)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             HStack(spacing: 24) {
@@ -142,6 +157,11 @@ struct LargeWidgetView: View {
                 if let sonnet = snapshot.sonnetUtilization {
                     UsageBarView(utilization: sonnet, label: "Sonnet (7d)")
                 }
+                if let remainingText = snapshot.remainingText {
+                    Text(remainingText)
+                        .font(.caption)
+                        .foregroundStyle(providerAccentColor)
+                }
             }
 
             Spacer()
@@ -150,6 +170,15 @@ struct LargeWidgetView: View {
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
                 .frame(maxWidth: .infinity, alignment: .trailing)
+        }
+    }
+
+    private var providerAccentColor: Color {
+        switch snapshot.provider {
+        case .claudeCode:
+            return Color(red: 0.85, green: 0.45, blue: 0.29)
+        case .codexCLI:
+            return Color(red: 0.06, green: 0.47, blue: 0.44)
         }
     }
 }
