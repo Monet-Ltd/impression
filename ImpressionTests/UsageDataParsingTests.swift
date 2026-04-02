@@ -139,4 +139,27 @@ final class UsageDataParsingTests: XCTestCase {
         XCTAssertEqual(parsed?.secondary?.label, "Weekly (7d)")
         XCTAssertEqual(parsed?.planType, "plus")
     }
+
+    @MainActor
+    func testClaudeTokenResolutionFallsBackToClaudeCredentials() {
+        let fallback = OAuthCredentials(
+            accessToken: "sk-ant-oat01-fallback",
+            refreshToken: "sk-ant-ort01-fallback",
+            expiresAt: Int64((Date().timeIntervalSince1970 + 3600) * 1000),
+            scopes: ["user:profile"]
+        )
+
+        let resolved = UsageViewModel.resolveClaudeToken(
+            syncedToken: nil,
+            syncedExpiry: nil,
+            fallbackCredentials: fallback
+        )
+
+        XCTAssertEqual(resolved.token, "sk-ant-oat01-fallback")
+        if case .expiresSoon = resolved.status {
+            XCTAssertTrue(true)
+        } else {
+            XCTFail("Expected fallback token to remain usable and be marked expiresSoon")
+        }
+    }
 }

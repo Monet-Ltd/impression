@@ -3,6 +3,12 @@ import Combine
 
 @MainActor @Observable
 final class UsageViewModel {
+    struct ClaudeTokenResolution: Equatable {
+        let token: String?
+        let expiry: Date?
+        let status: TokenStatus
+    }
+
     var selectedProvider: UsageProviderKind
     var snapshot: UsageSnapshot
     var isLoading = false
@@ -75,16 +81,20 @@ final class UsageViewModel {
             return
         }
 
-        // Try iCloud Keychain first
-        if let keychainToken = cloudSync.readTokenFromKeychain() {
-            self.token = keychainToken
-            self.tokenStatus = .valid
-            if let expiry = cloudSync.readTokenExpiry() {
-                updateTokenStatus(expiresAt: expiry)
-            }
-            return
-        }
-        self.tokenStatus = .notFound
+        #if os(macOS)
+        let fallbackCredentials = ClaudeCredentialsSource.readOAuthCredentials()
+        #else
+        let fallbackCredentials: OAuthCredentials? = nil
+        #endif
+
+        let resolution = Self.resolveClaudeToken(
+            syncedToken: cloudSync.readTokenFromKeychain(),
+            syncedExpiry: cloudSync.readTokenExpiry(),
+            fallbackCredentials: fallbackCredentials
+        )
+
+        token = resolution.token
+        tokenStatus = resolution.status
     }
 
     private func updateTokenStatus(expiresAt: Date) {
@@ -252,6 +262,25 @@ final class UsageViewModel {
         selectedProvider.shortName
     }
 
+    static func resolveClaudeToken(
+        syncedToken: String?,
+        syncedExpiry: Date?,
+        fallbackCredentials: OAuthCredentials?
+    ) -> ClaudeTokenResolution {
+        if let syncedToken {
+            let status = tokenStatus(for: syncedExpiry)
+            return ClaudeTokenResolution(token: syncedToken, expiry: syncedExpiry, status: status)
+        }
+
+        if let fallbackCredentials {
+            let expiry = fallbackCredentials.expiresAtDate
+            let status = tokenStatus(for: expiry)
+            return ClaudeTokenResolution(token: fallbackCredentials.accessToken, expiry: expiry, status: status)
+        }
+
+        return ClaudeTokenResolution(token: nil, expiry: nil, status: .notFound)
+    }
+
     func selectProvider(_ provider: UsageProviderKind) {
         guard selectedProvider != provider else { return }
         stopPolling()
@@ -271,6 +300,17 @@ final class UsageViewModel {
         } else {
             startPolling()
         }
+    }
+
+    private static func tokenStatus(for expiry: Date?) -> TokenStatus {
+        guard let expiry else { return .valid }
+        if expiry < Date() {
+            return .expired
+        }
+        if expiry.timeIntervalSinceNow < 2 * 3600 {
+            return .expiresSoon(expiry)
+        }
+        return .valid
     }
 }
 

@@ -1,4 +1,7 @@
 import Foundation
+#if os(macOS)
+import Security
+#endif
 
 /// Represents ~/.claude/.credentials.json
 struct CredentialsFile: Codable {
@@ -25,4 +28,58 @@ struct OAuthCredentials: Codable {
         guard let date = expiresAtDate else { return nil }
         return date.timeIntervalSinceNow
     }
+}
+
+enum ClaudeCredentialsSource {
+    #if os(macOS)
+    private static let filePaths: [String] = [
+        NSHomeDirectory() + "/.claude/.credentials.json",
+        NSHomeDirectory() + "/.claude/credentials.json",
+    ]
+
+    static func readOAuthCredentials() -> OAuthCredentials? {
+        if let credentials = readFromKeychain() {
+            return credentials
+        }
+
+        for path in filePaths {
+            if let credentials = readFromFile(path) {
+                return credentials
+            }
+        }
+
+        return nil
+    }
+
+    private static func readFromKeychain() -> OAuthCredentials? {
+        for service in AppConstants.claudeKeychainServices {
+            if let credentials = readKeychainService(service) {
+                return credentials
+            }
+        }
+        return nil
+    }
+
+    private static func readKeychainService(_ service: String) -> OAuthCredentials? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne,
+        ]
+
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+        guard status == errSecSuccess, let data = result as? Data else { return nil }
+
+        let file = try? JSONDecoder().decode(CredentialsFile.self, from: data)
+        return file?.claudeAiOauth
+    }
+
+    private static func readFromFile(_ path: String) -> OAuthCredentials? {
+        guard let data = FileManager.default.contents(atPath: path) else { return nil }
+        let file = try? JSONDecoder().decode(CredentialsFile.self, from: data)
+        return file?.claudeAiOauth
+    }
+    #endif
 }
