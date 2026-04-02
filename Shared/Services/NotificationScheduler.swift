@@ -1,5 +1,8 @@
 import Foundation
 import UserNotifications
+#if os(macOS)
+import AppKit
+#endif
 
 actor NotificationScheduler {
     private var scheduledResetIDs: Set<String> = []
@@ -20,6 +23,45 @@ actor NotificationScheduler {
         }
     }
 
+    func sendTestNotification() async -> Bool {
+        let hasPermission = await ensurePermission()
+        guard hasPermission else {
+            #if os(macOS)
+            Task { @MainActor in
+                self.deliverLegacyMacNotification(
+                title: "Impression test",
+                body: "Notifications are working for \(Date.now.formatted(date: .omitted, time: .shortened))."
+                )
+            }
+            return true
+            #else
+            NSLog("[Impression] Notifications disabled, skipping test notification")
+            return false
+            #endif
+        }
+
+        let content = UNMutableNotificationContent()
+        content.title = "Impression test"
+        content.body = "Notifications are working for \(Date.now.formatted(date: .omitted, time: .shortened))."
+        content.sound = .default
+
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+        let request = UNNotificationRequest(
+            identifier: "test-notification",
+            content: content,
+            trigger: trigger
+        )
+
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error {
+                NSLog("[Impression] UN test notification failed: \(error)")
+            } else {
+                NSLog("[Impression] UN test notification scheduled")
+            }
+        }
+        return true
+    }
+
     // MARK: - Reset notifications
 
     func scheduleResetNotification(type: ResetType, resetsAt: Date) {
@@ -28,16 +70,15 @@ actor NotificationScheduler {
         guard scheduledResetDates[type.notificationID] != resetsAt else { return }
         scheduledResetDates[type.notificationID] = resetsAt
 
-        if unPermission {
-            scheduleViaUN(type: type, resetsAt: resetsAt)
-        } else {
-            #if os(macOS)
-            scheduleViaMacFallback(type: type, resetsAt: resetsAt)
-            #endif
+        guard unPermission else {
+            NSLog("[Impression] Notifications disabled, skipping \(type.notificationID)")
+            return
         }
+
+        scheduleViaUN(type: type, resetsAt: resetsAt)
     }
 
-    /// Primary: UNUserNotificationCenter (works on signed apps, iOS always)
+    /// Use the app's own local notifications for every platform.
     private func scheduleViaUN(type: ResetType, resetsAt: Date) {
         let content = UNMutableNotificationContent()
         content.title = type.title
@@ -59,38 +100,12 @@ actor NotificationScheduler {
         UNUserNotificationCenter.current().add(request) { error in
             if let error {
                 NSLog("[Impression] UN schedule failed for \(type.notificationID): \(error)")
-                #if os(macOS)
-                Task { await self.scheduleViaMacFallback(type: type, resetsAt: resetsAt) }
-                #endif
             } else {
                 NSLog("[Impression] UN scheduled \(type.notificationID) at \(resetsAt)")
             }
         }
         scheduledResetIDs.insert(type.notificationID)
     }
-
-    #if os(macOS)
-    /// Fallback for unsigned macOS builds: use DispatchSourceTimer + osascript
-    private func scheduleViaMacFallback(type: ResetType, resetsAt: Date) {
-        let delay = resetsAt.timeIntervalSinceNow
-        guard delay > 0 else { return }
-
-        NSLog("[Impression] macOS fallback: scheduling \(type.notificationID) in \(Int(delay))s via timer")
-
-        DispatchQueue.global().asyncAfter(deadline: .now() + delay) {
-            let script = """
-            display notification "\(type.body)" with title "\(type.title)" subtitle "Impression" sound name "default"
-            """
-            let proc = Process()
-            proc.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-            proc.arguments = ["-e", script]
-            try? proc.run()
-            proc.waitUntilExit()
-            NSLog("[Impression] macOS fallback: fired \(type.notificationID)")
-        }
-        scheduledResetIDs.insert(type.notificationID)
-    }
-    #endif
 
     // MARK: - Threshold warnings
 
@@ -128,31 +143,26 @@ actor NotificationScheduler {
         let reminderTime = expiresAt.addingTimeInterval(-2 * 3600) // 2h before
         guard reminderTime > Date() else { return }
 
-        if unPermission {
-            let content = UNMutableNotificationContent()
-            content.title = "Token 即將過期"
-            content.body = "請在 Terminal 重新取得 token 並貼上"
-            content.sound = .default
+        guard unPermission else {
+            NSLog("[Impression] Notifications disabled, skipping token-expiry-reminder")
+            return
+        }
 
-            let components = Calendar.current.dateComponents(
-                [.year, .month, .day, .hour, .minute, .second],
-                from: reminderTime
-            )
-            let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
-            let request = UNNotificationRequest(identifier: "token-expiry-reminder", content: content, trigger: trigger)
-            UNUserNotificationCenter.current().add(request) { _ in }
-        } else {
-            #if os(macOS)
-            let delay = reminderTime.timeIntervalSinceNow
-            guard delay > 0 else { return }
-            DispatchQueue.global().asyncAfter(deadline: .now() + delay) {
-                let script = "display notification \"請在 Terminal 重新取得 token 並貼上\" with title \"Token 即將過期\" subtitle \"Impression\" sound name \"default\""
-                let proc = Process()
-                proc.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-                proc.arguments = ["-e", script]
-                try? proc.run()
+        let content = UNMutableNotificationContent()
+        content.title = "Token 即將過期"
+        content.body = "請在 Terminal 重新取得 token 並貼上"
+        content.sound = .default
+
+        let components = Calendar.current.dateComponents(
+            [.year, .month, .day, .hour, .minute, .second],
+            from: reminderTime
+        )
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+        let request = UNNotificationRequest(identifier: "token-expiry-reminder", content: content, trigger: trigger)
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error {
+                NSLog("[Impression] UN schedule failed for token-expiry-reminder: \(error)")
             }
-            #endif
         }
     }
 
@@ -180,23 +190,58 @@ actor NotificationScheduler {
     // MARK: - Send immediately
 
     private func sendNotificationNow(id: String, title: String, body: String) {
-        if unPermission {
-            let content = UNMutableNotificationContent()
-            content.title = title
-            content.body = body
-            content.sound = .default
-            let request = UNNotificationRequest(identifier: id, content: content, trigger: nil)
-            UNUserNotificationCenter.current().add(request) { _ in }
-        } else {
+        guard unPermission else {
             #if os(macOS)
-            let script = "display notification \"\(body)\" with title \"\(title)\" subtitle \"Impression\" sound name \"default\""
-            let proc = Process()
-            proc.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-            proc.arguments = ["-e", script]
-            try? proc.run()
+            Task { @MainActor in
+                self.deliverLegacyMacNotification(title: title, body: body)
+            }
+            return
+            #else
+            NSLog("[Impression] Notifications disabled, skipping immediate notification \(id)")
+            return
             #endif
         }
+
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
+        let request = UNNotificationRequest(identifier: id, content: content, trigger: nil)
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error {
+                NSLog("[Impression] UN immediate notification failed for \(id): \(error)")
+            }
+        }
     }
+
+    private func ensurePermission() async -> Bool {
+        let settings = await UNUserNotificationCenter.current().notificationSettings()
+        switch settings.authorizationStatus {
+        case .authorized, .provisional, .ephemeral:
+            unPermission = true
+            return true
+        case .notDetermined:
+            return await requestPermission()
+        case .denied:
+            unPermission = false
+            return false
+        @unknown default:
+            unPermission = false
+            return false
+        }
+    }
+
+    #if os(macOS)
+    @MainActor
+    private func deliverLegacyMacNotification(title: String, body: String) {
+        let notification = NSUserNotification()
+        notification.title = title
+        notification.informativeText = body
+        notification.soundName = NSUserNotificationDefaultSoundName
+        NSUserNotificationCenter.default.deliver(notification)
+        NSLog("[Impression] Delivered legacy macOS notification")
+    }
+    #endif
 
     private func formatResetTime(_ date: Date?) -> String {
         guard let date else { return "" }
