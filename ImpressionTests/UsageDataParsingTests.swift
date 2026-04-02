@@ -124,6 +124,26 @@ final class UsageDataParsingTests: XCTestCase {
         XCTAssertEqual(UsageProviderKind.codexCLI.displayName, "Codex CLI")
         XCTAssertTrue(UsageProviderKind.claudeCode.requiresToken)
         XCTAssertFalse(UsageProviderKind.codexCLI.requiresToken)
+        XCTAssertEqual(UsageProviderKind.claudeCode.accentHex, "#C96442")
+        XCTAssertEqual(UsageProviderKind.codexCLI.accentHex, "#00D992")
+    }
+
+    func testSnapshotPresentationHelpers() {
+        let snapshot = UsageSnapshot(
+            provider: .codexCLI,
+            sessionUtilization: 42,
+            sessionResetsAt: nil,
+            weeklyUtilization: 15,
+            weeklyResetsAt: nil,
+            opusUtilization: nil,
+            sonnetUtilization: nil,
+            fetchedAt: .distantPast,
+            source: .codexSession,
+            remainingText: "Plan: Plus"
+        )
+
+        XCTAssertEqual(snapshot.sourceDisplayName, "Local telemetry")
+        XCTAssertEqual(snapshot.normalizedPlanName, "Plus")
     }
 
     func testParseCodexRateLimitLine() {

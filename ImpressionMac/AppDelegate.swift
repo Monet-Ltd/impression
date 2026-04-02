@@ -26,7 +26,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         // Setup popover
-        popover.contentSize = NSSize(width: 320, height: 340)
+        popover.contentSize = NSSize(width: 372, height: 438)
         popover.behavior = .transient
         popover.contentViewController = NSHostingController(
             rootView: MacPopoverView(viewModel: viewModel, onQuit: { NSApp.terminate(nil) })
@@ -71,24 +71,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let utilization = viewModel.snapshot.sessionUtilization
         let imageName: String
 
-        switch viewModel.selectedProvider {
-        case .claudeCode:
-            switch UsageColor.from(utilization: utilization) {
-            case .green:
-                imageName = "gauge.with.dots.needle.33percent"
-            case .yellow:
-                imageName = "gauge.with.dots.needle.50percent"
-            case .orange:
-                imageName = "gauge.with.dots.needle.67percent"
-            case .red:
-                imageName = "exclamationmark.circle.fill"
-            }
-        case .codexCLI:
-            imageName = "chevron.left.forwardslash.chevron.right"
+        switch UsageColor.from(utilization: utilization) {
+        case .green:
+            imageName = "gauge.with.dots.needle.33percent"
+        case .yellow:
+            imageName = "gauge.with.dots.needle.50percent"
+        case .orange:
+            imageName = "gauge.with.dots.needle.67percent"
+        case .red:
+            imageName = "exclamationmark.circle.fill"
         }
 
         if let image = NSImage(systemSymbolName: imageName, accessibilityDescription: "Usage") {
-            let config = NSImage.SymbolConfiguration(pointSize: 16, weight: .regular)
+            let config = NSImage.SymbolConfiguration(pointSize: 16, weight: .medium)
             let configured = image.withSymbolConfiguration(config) ?? image
             configured.isTemplate = true
             button.image = configured
@@ -98,7 +93,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Tooltip with quick stats
         let session = Int(viewModel.snapshot.sessionUtilization)
         let weekly = Int(viewModel.snapshot.weeklyUtilization)
-        button.toolTip = "\(viewModel.providerDisplayName) | Session: \(session)% | Weekly: \(weekly)%"
+        button.toolTip = """
+        \(viewModel.providerDisplayName)
+        Session \(session)% • Weekly \(weekly)%
+        \(viewModel.sourceDisplayName)
+        """
     }
 }
 
@@ -119,12 +118,16 @@ struct MacPopoverView: View {
                 }
             }
             .pickerStyle(.segmented)
-            .padding()
+            .padding(.horizontal, 16)
+            .padding(.top, 16)
+            .padding(.bottom, 12)
 
             if viewModel.requiresOnboarding {
                 MacOnboardingView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             } else {
                 UsageDetailView(viewModel: viewModel)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
 
             Divider()
@@ -147,8 +150,10 @@ struct MacPopoverView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
             }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
         }
+        .frame(width: 372, height: 438)
+        .background(.regularMaterial)
     }
 }
