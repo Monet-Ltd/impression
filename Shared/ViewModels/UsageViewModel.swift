@@ -13,6 +13,7 @@ final class UsageViewModel {
     var isLoading = false
     var error: String?
     var tokenStatus: TokenStatus = .unknown
+    var currentRefreshInterval: TimeInterval
     var onSnapshotChanged: (() -> Void)?
     private var hasSentFirstStatusNotification = false
 
@@ -35,6 +36,7 @@ final class UsageViewModel {
 
     init() {
         self.selectedProvider = dataStore.selectedProvider
+        self.currentRefreshInterval = dataStore.refreshInterval
         self.snapshot = dataStore.readSnapshot(for: dataStore.selectedProvider)
             ?? cloudSync.readSnapshot(for: dataStore.selectedProvider)
             ?? .empty(for: dataStore.selectedProvider)
@@ -203,6 +205,7 @@ final class UsageViewModel {
     private func rescheduleTimer(interval: TimeInterval? = nil) {
         timer?.invalidate()
         let iv = interval ?? dataStore.refreshInterval
+        currentRefreshInterval = iv
         let newTimer = Timer(timeInterval: iv, repeats: true) { [weak self] _ in
             Task { await self?.fetchOnce() }
         }
@@ -227,13 +230,11 @@ final class UsageViewModel {
     }
 
     var sessionResetCountdown: String? {
-        guard let date = snapshot.sessionResetsAt, date > Date() else { return nil }
-        return formatCountdown(date)
+        resetDisplayText(for: snapshot.sessionResetsAt, utilization: snapshot.sessionUtilization)
     }
 
     var weeklyResetCountdown: String? {
-        guard let date = snapshot.weeklyResetsAt, date > Date() else { return nil }
-        return formatCountdown(date)
+        resetDisplayText(for: snapshot.weeklyResetsAt, utilization: snapshot.weeklyUtilization)
     }
 
     private func formatCountdown(_ date: Date) -> String {
@@ -249,6 +250,26 @@ final class UsageViewModel {
         return "\(hours)h \(minutes)m"
     }
 
+    private func resetDisplayText(for date: Date?, utilization: Double) -> String? {
+        if let date, date > Date() {
+            return formatCountdown(date)
+        }
+
+        if snapshot.fetchedAt == .distantPast {
+            return nil
+        }
+
+        if utilization >= 100 {
+            return "Reset pending"
+        }
+
+        if utilization > 0 {
+            return "Tracking"
+        }
+
+        return "Not started"
+    }
+
     var requiresOnboarding: Bool {
         selectedProvider.requiresToken && (tokenStatus == .notFound || tokenStatus == .unknown || tokenStatus == .expired)
     }
@@ -259,6 +280,39 @@ final class UsageViewModel {
 
     var providerShortName: String {
         selectedProvider.shortName
+    }
+
+    var sourceDisplayName: String {
+        snapshot.sourceDisplayName
+    }
+
+    var refreshCadenceText: String {
+        let formatted = Self.formatInterval(currentRefreshInterval)
+        if selectedProvider == .claudeCode && currentRefreshInterval > AppConstants.defaultRefreshInterval {
+            return "Adaptive now \(formatted)"
+        }
+        return "Every \(formatted)"
+    }
+
+    var statusSummaryText: String {
+        if let plan = snapshot.normalizedPlanName {
+            return "\(plan) plan"
+        }
+
+        switch tokenStatus {
+        case .unknown:
+            return "Checking"
+        case .valid:
+            return selectedProvider.requiresToken ? "Authenticated" : "Ready"
+        case .expiresSoon:
+            return "Expires soon"
+        case .expired:
+            return "Expired"
+        case .notFound:
+            return "Login required"
+        case .notRequired:
+            return "Local"
+        }
     }
 
     static func resolveClaudeToken(
@@ -310,6 +364,16 @@ final class UsageViewModel {
             return .expiresSoon(expiry)
         }
         return .valid
+    }
+
+    private static func formatInterval(_ interval: TimeInterval) -> String {
+        let minutes = max(Int(interval.rounded()) / 60, 1)
+        if minutes >= 60 {
+            let hours = minutes / 60
+            let remainingMinutes = minutes % 60
+            return remainingMinutes == 0 ? "\(hours)h" : "\(hours)h \(remainingMinutes)m"
+        }
+        return "\(minutes)m"
     }
 }
 

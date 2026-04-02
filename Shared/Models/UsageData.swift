@@ -23,6 +23,13 @@ enum UsageProviderKind: String, Codable, CaseIterable, Identifiable {
     var primaryQuotaLabel: String { "Session (5h)" }
     var secondaryQuotaLabel: String { "Weekly (7d)" }
 
+    var accentHex: String {
+        switch self {
+        case .claudeCode: return "#C96442"
+        case .codexCLI: return "#00D992"
+        }
+    }
+
     var requiresToken: Bool {
         self == .claudeCode
     }
@@ -168,6 +175,32 @@ struct UsageSnapshot: Codable, Equatable {
             secondaryLabel: secondaryLabel,
             remainingText: remainingText
         )
+    }
+
+    var sourceDisplayName: String {
+        switch source {
+        case .oauthUsage:
+            return "OAuth usage API"
+        case .messageHeaders:
+            return "Message headers"
+        case .icloudCache:
+            return "iCloud cache"
+        case .codexSession:
+            return "Local telemetry"
+        }
+    }
+
+    var normalizedPlanName: String? {
+        guard let remainingText else { return nil }
+        let trimmed = remainingText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        if trimmed.lowercased().hasPrefix("plan:") {
+            return trimmed
+                .dropFirst("Plan:".count)
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .capitalized
+        }
+        return trimmed
     }
 }
 

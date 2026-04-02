@@ -4,10 +4,11 @@ struct UsageRingView: View {
     let utilization: Double // 0-100
     let label: String
     let countdown: String?
-    var lineWidth: CGFloat = 10
-    var size: CGFloat = 80
+    var lineWidth: CGFloat = 8
+    var size: CGFloat = 84
 
     private var progress: Double { min(utilization / 100.0, 1.0) }
+    private var percentageFontSize: CGFloat { max(floor(size * 0.22), 18) }
     private var color: Color {
         switch UsageColor.from(utilization: utilization) {
         case .green: return .green
@@ -18,7 +19,7 @@ struct UsageRingView: View {
     }
 
     var body: some View {
-        VStack(spacing: 4) {
+        VStack(spacing: 0) {
             ZStack {
                 Circle()
                     .stroke(color.opacity(0.2), lineWidth: lineWidth)
@@ -30,22 +31,26 @@ struct UsageRingView: View {
                     .animation(.easeInOut(duration: 0.5), value: progress)
 
                 Text("\(Int(utilization))%")
-                    .font(.system(size: size * 0.22, weight: .bold, design: .rounded))
+                    .font(.system(size: percentageFontSize, weight: .semibold))
                     .monospacedDigit()
+                    .tracking(-0.2)
             }
             .frame(width: size, height: size)
 
             Text(label)
-                .font(.caption2)
+                .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(.secondary)
+                .padding(.top, 12)
+                .frame(width: size + 8, height: 14)
 
-            if let countdown {
-                Text(countdown)
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-                    .monospacedDigit()
-            }
+            Text(countdown ?? " ")
+                .font(.system(size: 11, weight: .regular))
+                .foregroundStyle(.tertiary)
+                .monospacedDigit()
+                .padding(.top, 6)
+                .frame(width: size + 8, height: 18)
         }
+        .frame(width: size + 8)
     }
 }
 
@@ -67,11 +72,11 @@ struct UsageBarView: View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text(label)
-                    .font(.caption)
+                    .font(.system(size: 12, weight: .regular))
                     .foregroundStyle(.secondary)
                 Spacer()
                 Text("\(Int(utilization))%")
-                    .font(.caption)
+                    .font(.system(size: 12, weight: .medium))
                     .monospacedDigit()
                     .foregroundStyle(.secondary)
             }
