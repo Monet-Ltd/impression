@@ -8,7 +8,6 @@ final class UsageViewModel {
         let expiry: Date?
         let status: TokenStatus
     }
-
     var selectedProvider: UsageProviderKind
     var snapshot: UsageSnapshot
     var isLoading = false
