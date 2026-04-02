@@ -29,3 +29,6 @@ Packages/
 .env
 .env.local
 default.profraw
+
+# Local worktrees
+.worktrees/
