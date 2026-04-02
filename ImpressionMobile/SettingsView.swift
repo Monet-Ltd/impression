@@ -15,6 +15,17 @@ struct MobileSettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section("Provider") {
+                    Picker("Source", selection: Binding(
+                        get: { viewModel.selectedProvider },
+                        set: { viewModel.selectProvider($0) }
+                    )) {
+                        ForEach(UsageProviderKind.allCases) { provider in
+                            Text(provider.displayName).tag(provider)
+                        }
+                    }
+                }
+
                 Section("Refresh") {
                     Picker("Interval", selection: $refreshInterval) {
                         Text("1 min").tag(60.0)
@@ -42,6 +53,10 @@ struct MobileSettingsView: View {
                         Text("Status")
                         Spacer()
                         switch viewModel.tokenStatus {
+                        case .notRequired:
+                            Label("Local data", systemImage: "terminal")
+                                .foregroundStyle(.teal)
+                                .font(.caption)
                         case .valid:
                             Label("Connected", systemImage: "checkmark.circle.fill")
                                 .foregroundStyle(.green)
@@ -64,6 +79,7 @@ struct MobileSettingsView: View {
                     Button("Update Token") {
                         showTokenSheet = true
                     }
+                    .disabled(!viewModel.selectedProvider.requiresToken)
                 }
 
                 Section("About") {

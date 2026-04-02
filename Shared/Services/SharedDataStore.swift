@@ -3,7 +3,7 @@ import WidgetKit
 
 /// Local App Group UserDefaults for sharing data between main app and widget extension.
 final class SharedDataStore: @unchecked Sendable {
-    nonisolated(unsafe) static let shared = SharedDataStore()
+    static let shared = SharedDataStore()
 
     private let defaults: UserDefaults
     private let encoder = JSONEncoder()
@@ -15,15 +15,35 @@ final class SharedDataStore: @unchecked Sendable {
 
     // MARK: - Usage Snapshot
 
-    func writeSnapshot(_ snapshot: UsageSnapshot) {
+    func writeSnapshot(_ snapshot: UsageSnapshot, for provider: UsageProviderKind) {
         guard let data = try? encoder.encode(snapshot) else { return }
-        defaults.set(data, forKey: "usageSnapshot")
+        defaults.set(data, forKey: AppConstants.snapshotStorageKey(for: provider))
         WidgetCenter.shared.reloadTimelines(ofKind: "UsageWidget")
+        WidgetCenter.shared.reloadTimelines(ofKind: "LockScreenWidget")
+    }
+
+    func readSnapshot(for provider: UsageProviderKind) -> UsageSnapshot? {
+        guard let data = defaults.data(forKey: AppConstants.snapshotStorageKey(for: provider)) else { return nil }
+        return try? decoder.decode(UsageSnapshot.self, from: data)
+    }
+
+    func writeSnapshot(_ snapshot: UsageSnapshot) {
+        writeSnapshot(snapshot, for: snapshot.provider)
     }
 
     func readSnapshot() -> UsageSnapshot? {
-        guard let data = defaults.data(forKey: "usageSnapshot") else { return nil }
-        return try? decoder.decode(UsageSnapshot.self, from: data)
+        readSnapshot(for: selectedProvider)
+    }
+
+    var selectedProvider: UsageProviderKind {
+        get {
+            guard let raw = defaults.string(forKey: AppConstants.selectedProviderKey),
+                  let provider = UsageProviderKind(rawValue: raw) else {
+                return .claudeCode
+            }
+            return provider
+        }
+        set { defaults.set(newValue.rawValue, forKey: AppConstants.selectedProviderKey) }
     }
 
     // MARK: - Settings

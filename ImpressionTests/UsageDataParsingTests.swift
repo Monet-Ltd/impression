@@ -99,6 +99,7 @@ final class UsageDataParsingTests: XCTestCase {
 
     func testSnapshotCoding() throws {
         let snapshot = UsageSnapshot(
+            provider: .codexCLI,
             sessionUtilization: 42.5,
             sessionResetsAt: Date(timeIntervalSince1970: 1743465600),
             weeklyUtilization: 15.0,
@@ -106,12 +107,36 @@ final class UsageDataParsingTests: XCTestCase {
             opusUtilization: 8.0,
             sonnetUtilization: 3.0,
             fetchedAt: Date(timeIntervalSince1970: 1743379200),
-            source: .oauthUsage
+            source: .oauthUsage,
+            remainingText: "Plan: Plus"
         )
 
         let data = try JSONEncoder().encode(snapshot)
         let decoded = try JSONDecoder().decode(UsageSnapshot.self, from: data)
 
         XCTAssertEqual(snapshot, decoded)
+        XCTAssertEqual(decoded.provider, .codexCLI)
+        XCTAssertEqual(decoded.remainingText, "Plan: Plus")
+    }
+
+    func testProviderDefaults() {
+        XCTAssertEqual(UsageProviderKind.claudeCode.displayName, "Claude Code")
+        XCTAssertEqual(UsageProviderKind.codexCLI.displayName, "Codex CLI")
+        XCTAssertTrue(UsageProviderKind.claudeCode.requiresToken)
+        XCTAssertFalse(UsageProviderKind.codexCLI.requiresToken)
+    }
+
+    func testParseCodexRateLimitLine() {
+        let line = """
+        {"timestamp":"2026-04-02T05:30:56.159Z","type":"event_msg","payload":{"type":"token_count","rate_limits":{"limit_id":"codex","primary":{"used_percent":43.0,"window_minutes":300,"resets_at":1775115417},"secondary":{"used_percent":13.0,"window_minutes":10080,"resets_at":1775702217},"credits":null,"plan_type":"plus"}}}
+        """
+
+        let parsed = CodexUsageService.rateLimits(fromJSONLine: line)
+
+        XCTAssertEqual(parsed?.primary.usedPercent, 43.0)
+        XCTAssertEqual(parsed?.primary.label, "Session (5h)")
+        XCTAssertEqual(parsed?.secondary?.usedPercent, 13.0)
+        XCTAssertEqual(parsed?.secondary?.label, "Weekly (7d)")
+        XCTAssertEqual(parsed?.planType, "plus")
     }
 }

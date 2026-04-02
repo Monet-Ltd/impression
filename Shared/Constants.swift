@@ -3,6 +3,7 @@ import Foundation
 enum AppConstants {
     static let appGroupID = "group.com.impression.usage"
     static let iCloudKVStoreKey = "com.impression.usageSnapshot"
+    static let selectedProviderKey = "com.impression.selectedProvider"
     static let keychainService = "com.impression.claude-token"
     static let keychainAccount = "default"
 
@@ -22,4 +23,10 @@ enum AppConstants {
     static let anthropicVersionHeader = "2023-06-01"
     static let userAgent = "Impression/1.0"
     static let fallbackModel = "claude-haiku-4-5-20251001"
+
+    static let codexSessionsPath = NSHomeDirectory() + "/.codex/sessions"
+
+    static func snapshotStorageKey(for provider: UsageProviderKind) -> String {
+        "\(iCloudKVStoreKey).\(provider.rawValue)"
+    }
 }

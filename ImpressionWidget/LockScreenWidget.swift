@@ -1,16 +1,17 @@
 import SwiftUI
 import WidgetKit
+import AppIntents
 
 #if os(iOS)
 struct LockScreenWidget: Widget {
     let kind = "LockScreenWidget"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: UsageTimelineProvider()) { entry in
+        AppIntentConfiguration(kind: kind, intent: UsageWidgetConfigurationIntent.self, provider: UsageTimelineProvider()) { entry in
             LockScreenWidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("Claude Session")
-        .description("Quick session usage on lock screen.")
+        .configurationDisplayName("Usage Session")
+        .description("Quick Claude Code or Codex CLI usage on lock screen.")
         .supportedFamilies([.accessoryCircular, .accessoryRectangular])
     }
 }
@@ -36,7 +37,7 @@ struct CircularLockScreenView: View {
 
     var body: some View {
         Gauge(value: snapshot.sessionUtilization, in: 0...100) {
-            Text("S")
+            Text(snapshot.provider == .claudeCode ? "C" : "O")
         } currentValueLabel: {
             Text("\(Int(snapshot.sessionUtilization))")
                 .font(.system(.body, design: .rounded).bold())
@@ -51,7 +52,7 @@ struct RectangularLockScreenView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack {
-                Text("Session")
+                Text(snapshot.provider.shortName)
                     .font(.caption2)
                 Spacer()
                 Text("\(Int(snapshot.sessionUtilization))%")
@@ -64,7 +65,7 @@ struct RectangularLockScreenView: View {
             .gaugeStyle(.accessoryLinearCapacity)
 
             HStack {
-                Text("Weekly")
+                Text(snapshot.secondaryLabel)
                     .font(.caption2)
                 Spacer()
                 Text("\(Int(snapshot.weeklyUtilization))%")

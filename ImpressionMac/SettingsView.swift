@@ -14,6 +14,17 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
+            Section("Provider") {
+                Picker("Source", selection: Binding(
+                    get: { viewModel.selectedProvider },
+                    set: { viewModel.selectProvider($0) }
+                )) {
+                    ForEach(UsageProviderKind.allCases) { provider in
+                        Text(provider.displayName).tag(provider)
+                    }
+                }
+            }
+
             Section("Refresh") {
                 Picker("Interval", selection: $refreshInterval) {
                     Text("1 min").tag(60.0)
@@ -69,7 +80,8 @@ struct SettingsView: View {
 
             Section("About") {
                 LabeledContent("Version", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")
-                LabeledContent("Token", value: viewModel.tokenStatus == .valid ? "Connected" : "Not connected")
+                LabeledContent("Provider", value: viewModel.providerDisplayName)
+                LabeledContent("Token", value: viewModel.selectedProvider.requiresToken && viewModel.tokenStatus == .valid ? "Connected" : (viewModel.selectedProvider.requiresToken ? "Not connected" : "Not required"))
             }
         }
         .formStyle(.grouped)
