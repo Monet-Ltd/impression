@@ -78,6 +78,27 @@ final class ClaudeTokenRecoveryTests: XCTestCase {
         XCTAssertEqual(sources.preferredMacCredentials?.accessToken, "mirror-token")
     }
 
+    func testWritingMirroredTokenWithoutExpiryClearsStaleExpiry() {
+        let cloudSync = CloudSyncService.shared
+        let previousExpiry = cloudSync.readTokenExpiry()
+        let staleExpiry = Date(timeIntervalSince1970: 1_700_000_000)
+
+        defer {
+            if let previousExpiry {
+                cloudSync.writeTokenExpiry(previousExpiry)
+            } else {
+                cloudSync.clearTokenExpiry()
+            }
+        }
+
+        cloudSync.writeTokenExpiry(staleExpiry)
+        XCTAssertNotNil(cloudSync.readTokenExpiry())
+
+        _ = cloudSync.writeTokenToKeychain("mirror-token-without-expiry")
+
+        XCTAssertNil(cloudSync.readTokenExpiry())
+    }
+
     func testOAuthCredentialsHasUsableRefreshToken() {
         let creds = ImpressionMac.OAuthCredentials(
             accessToken: "expired-token",

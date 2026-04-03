@@ -6,8 +6,10 @@ final class CloudSyncService: @unchecked Sendable {
     static let shared = CloudSyncService()
 
     private let kvStore = NSUbiquitousKeyValueStore.default
+    private let localDefaults = UserDefaults.standard
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
+    private static let tokenExpiryKey = "com.impression.tokenExpiresAt"
 
     private init() {
         NotificationCenter.default.addObserver(
@@ -55,6 +57,7 @@ final class CloudSyncService: @unchecked Sendable {
 
     func writeTokenToKeychain(_ token: String) -> Bool {
         deleteTokenFromKeychain()
+        clearTokenExpiry()
 
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -102,14 +105,27 @@ final class CloudSyncService: @unchecked Sendable {
     // MARK: - Token expiry tracking (for manual paste on iOS)
 
     func writeTokenExpiry(_ date: Date) {
-        kvStore.set(date.timeIntervalSince1970, forKey: "com.impression.tokenExpiresAt")
+        let timestamp = date.timeIntervalSince1970
+        kvStore.set(timestamp, forKey: Self.tokenExpiryKey)
+        localDefaults.set(timestamp, forKey: Self.tokenExpiryKey)
+        kvStore.synchronize()
+    }
+
+    func clearTokenExpiry() {
+        kvStore.removeObject(forKey: Self.tokenExpiryKey)
+        localDefaults.removeObject(forKey: Self.tokenExpiryKey)
         kvStore.synchronize()
     }
 
     func readTokenExpiry() -> Date? {
-        let ts = kvStore.double(forKey: "com.impression.tokenExpiresAt")
-        guard ts > 0 else { return nil }
-        return Date(timeIntervalSince1970: ts)
+        let cloudTimestamp = kvStore.double(forKey: Self.tokenExpiryKey)
+        if cloudTimestamp > 0 {
+            return Date(timeIntervalSince1970: cloudTimestamp)
+        }
+
+        let localTimestamp = localDefaults.double(forKey: Self.tokenExpiryKey)
+        guard localTimestamp > 0 else { return nil }
+        return Date(timeIntervalSince1970: localTimestamp)
     }
 }
 
