@@ -6,7 +6,7 @@ import Security
 /// 1. macOS Keychain (service: "Claude Code-credentials")
 /// 2. ~/.claude/.credentials.json file
 /// 3. ~/.claude/credentials.json file
-final class CredentialManager {
+final class CredentialManager: @unchecked Sendable {
     typealias CredentialReader = @Sendable () -> ResolvedCredentialSources
 
     enum CredentialUpdate: Equatable {
