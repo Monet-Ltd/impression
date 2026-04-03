@@ -41,10 +41,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
             viewModel.startPolling()
         }
 
-        // Setup credential manager; setToken handles startPolling when token changes
-        credentialManager = CredentialManager { [weak self] token, expiresAt in
-            Task { @MainActor [weak self] in
-                self?.viewModel.setToken(token, expiresAt: expiresAt)
+        // Setup credential manager; view model handles presence and missing transitions.
+        credentialManager = CredentialManager { [weak self] update in
+            Task { @MainActor in
+                switch update {
+                case let .present(token, expiresAt):
+                    self?.viewModel.setToken(token, expiresAt: expiresAt)
+                case .missing:
+                    self?.viewModel.clearToken()
+                }
             }
         }
         credentialManager?.startWatching()

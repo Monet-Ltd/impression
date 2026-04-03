@@ -28,6 +28,55 @@ struct OAuthCredentials: Codable {
         guard let date = expiresAtDate else { return nil }
         return date.timeIntervalSinceNow
     }
+
+    var hasRefreshToken: Bool {
+        guard let refreshToken else { return false }
+        return !refreshToken.isEmpty
+    }
+
+    var isUsableForMacRecovery: Bool {
+        !isExpired
+    }
+}
+
+struct ResolvedCredentialSources {
+    let claudeCodeCredentials: OAuthCredentials?
+    let legacyClaudeCodeCredentials: OAuthCredentials?
+    let fileCredentials: OAuthCredentials?
+    let legacyFileCredentials: OAuthCredentials?
+    let mirrorCredentials: OAuthCredentials?
+
+    var preferredMacCredentials: OAuthCredentials? {
+        [
+            claudeCodeCredentials,
+            legacyClaudeCodeCredentials,
+            fileCredentials,
+            legacyFileCredentials,
+        ]
+        .compactMap { $0 }
+        .first
+    }
+
+    var hasAnyLocalClaudeSource: Bool {
+        claudeCodeCredentials != nil
+        || legacyClaudeCodeCredentials != nil
+        || fileCredentials != nil
+        || legacyFileCredentials != nil
+    }
+}
+
+struct ClaudeRefreshResponse: Codable, Equatable {
+    let accessToken: String
+    let expiresIn: Int
+    let refreshToken: String?
+    let tokenType: String?
+
+    private enum CodingKeys: String, CodingKey {
+        case accessToken = "access_token"
+        case expiresIn = "expires_in"
+        case refreshToken = "refresh_token"
+        case tokenType = "token_type"
+    }
 }
 
 enum ClaudeCredentialsSource {
