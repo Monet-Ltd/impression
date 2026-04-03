@@ -52,10 +52,9 @@ struct ResolvedCredentialSources {
             legacyClaudeCodeCredentials,
             fileCredentials,
             legacyFileCredentials,
-            mirrorCredentials,
         ]
         .compactMap { $0 }
-        .first(where: { $0.isUsableForMacRecovery })
+        .first
     }
 
     var hasAnyLocalClaudeSource: Bool {

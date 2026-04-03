@@ -76,6 +76,14 @@ final class UsageViewModel {
         }
     }
 
+    func clearToken() {
+        token = nil
+        tokenStatus = .notFound
+        error = nil
+        hasSentFirstStatusNotification = false
+        stopPolling()
+    }
+
     func loadToken() {
         guard selectedProvider.requiresToken else {
             tokenStatus = .notRequired

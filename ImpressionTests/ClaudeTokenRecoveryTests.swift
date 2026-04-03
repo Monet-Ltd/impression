@@ -28,13 +28,13 @@ final class ClaudeTokenRecoveryTests: XCTestCase {
                     mirrorCredentials: mirror
                 )
             },
-            onChange: { _, _ in }
+            onChange: { _ in }
         )
 
         XCTAssertEqual(manager.readCredentials()?.accessToken, "local-token")
     }
 
-    func testResolvedCredentialSourcesFallsBackToMirrorWhenLocalSourcesAreMissing() {
+    func testResolvedCredentialSourcesDoesNotPreferMirrorWhenLocalSourcesAreMissing() {
         let mirror = ImpressionMac.OAuthCredentials(
             accessToken: "mirror-token",
             refreshToken: nil,
@@ -50,10 +50,11 @@ final class ClaudeTokenRecoveryTests: XCTestCase {
             mirrorCredentials: mirror
         )
 
-        XCTAssertEqual(sources.preferredMacCredentials?.accessToken, "mirror-token")
+        XCTAssertNil(sources.preferredMacCredentials)
+        XCTAssertEqual(sources.mirrorCredentials?.accessToken, "mirror-token")
     }
 
-    func testResolvedCredentialSourcesSkipsExpiredLocalCredentialsForValidMirror() {
+    func testResolvedCredentialSourcesPrefersExpiredLocalCredentialsOverMirror() {
         let local = ImpressionMac.OAuthCredentials(
             accessToken: "expired-local-token",
             refreshToken: "refresh-token",
@@ -75,7 +76,7 @@ final class ClaudeTokenRecoveryTests: XCTestCase {
             mirrorCredentials: mirror
         )
 
-        XCTAssertEqual(sources.preferredMacCredentials?.accessToken, "mirror-token")
+        XCTAssertEqual(sources.preferredMacCredentials?.accessToken, "expired-local-token")
     }
 
     func testWritingMirroredTokenWithoutExpiryClearsStaleExpiry() {
@@ -103,42 +104,44 @@ final class ClaudeTokenRecoveryTests: XCTestCase {
         let expiry2Millis = Int64((Date().addingTimeInterval(1200).timeIntervalSince1970 * 1000).rounded(.down))
         let expiry1 = Date(timeIntervalSince1970: Double(expiry1Millis) / 1000)
         let expiry2 = Date(timeIntervalSince1970: Double(expiry2Millis) / 1000)
-        let token = "mirror-token"
+        let token = "local-token"
 
         let sources1 = ImpressionMac.ResolvedCredentialSources(
-            claudeCodeCredentials: nil,
+            claudeCodeCredentials: ImpressionMac.OAuthCredentials(
+                accessToken: token,
+                refreshToken: "refresh-token",
+                expiresAt: expiry1Millis,
+                scopes: nil
+            ),
             legacyClaudeCodeCredentials: nil,
             fileCredentials: nil,
             legacyFileCredentials: nil,
-            mirrorCredentials: ImpressionMac.OAuthCredentials(
-                accessToken: token,
-                refreshToken: nil,
-                expiresAt: expiry1Millis,
-                scopes: nil
-            )
+            mirrorCredentials: nil
         )
 
         let sources2 = ImpressionMac.ResolvedCredentialSources(
-            claudeCodeCredentials: nil,
+            claudeCodeCredentials: ImpressionMac.OAuthCredentials(
+                accessToken: token,
+                refreshToken: "refresh-token",
+                expiresAt: expiry2Millis,
+                scopes: nil
+            ),
             legacyClaudeCodeCredentials: nil,
             fileCredentials: nil,
             legacyFileCredentials: nil,
-            mirrorCredentials: ImpressionMac.OAuthCredentials(
-                accessToken: token,
-                refreshToken: nil,
-                expiresAt: expiry2Millis,
-                scopes: nil
-            )
+            mirrorCredentials: nil
         )
 
         let expectation = expectation(description: "re-emits on expiry change")
         expectation.expectedFulfillmentCount = 2
         let recorder = EmittedExpiryRecorder()
+        let updates = CredentialUpdateRecorder()
 
         let observingManager = ImpressionMac.CredentialManager(
             cloudSyncService: cloudSync,
-            onChange: { _, expiry in
-                if let expiry {
+            onChange: { update in
+                updates.append(update)
+                if case let .present(_, expiry) = update, let expiry {
                     recorder.append(expiry)
                 }
                 expectation.fulfill()
@@ -150,7 +153,66 @@ final class ClaudeTokenRecoveryTests: XCTestCase {
 
         wait(for: [expectation], timeout: 1)
 
+        XCTAssertEqual(
+            updates.values,
+            [
+                .present(token: token, expiresAt: expiry1),
+                .present(token: token, expiresAt: expiry2),
+            ]
+        )
         XCTAssertEqual(recorder.expiries, [expiry1, expiry2])
+    }
+
+    func testCredentialManagerEmitsMissingWhenCredentialsDisappear() {
+        let expiryMillis = Int64((Date().addingTimeInterval(600).timeIntervalSince1970 * 1000).rounded(.down))
+        let expiry = Date(timeIntervalSince1970: Double(expiryMillis) / 1000)
+
+        let present = ImpressionMac.ResolvedCredentialSources(
+            claudeCodeCredentials: ImpressionMac.OAuthCredentials(
+                accessToken: "local-token",
+                refreshToken: "refresh-token",
+                expiresAt: expiryMillis,
+                scopes: nil
+            ),
+            legacyClaudeCodeCredentials: nil,
+            fileCredentials: nil,
+            legacyFileCredentials: nil,
+            mirrorCredentials: nil
+        )
+
+        let missing = ImpressionMac.ResolvedCredentialSources(
+            claudeCodeCredentials: nil,
+            legacyClaudeCodeCredentials: nil,
+            fileCredentials: nil,
+            legacyFileCredentials: nil,
+            mirrorCredentials: nil
+        )
+
+        let expectation = expectation(description: "emits present then missing")
+        expectation.expectedFulfillmentCount = 2
+        let updates = CredentialUpdateRecorder()
+
+        let cloudSync = ImpressionMac.CloudSyncService(mirrorStore: InMemoryCredentialMirrorStore())
+        let manager = ImpressionMac.CredentialManager(
+            cloudSyncService: cloudSync,
+            onChange: { update in
+                updates.append(update)
+                expectation.fulfill()
+            }
+        )
+
+        manager.reconcileResolvedSources(present)
+        manager.reconcileResolvedSources(missing)
+
+        wait(for: [expectation], timeout: 1)
+
+        XCTAssertEqual(
+            updates.values,
+            [
+                .present(token: "local-token", expiresAt: expiry),
+                .missing,
+            ]
+        )
     }
 
     func testOAuthCredentialsHasUsableRefreshToken() {
@@ -211,5 +273,22 @@ private final class EmittedExpiryRecorder: @unchecked Sendable {
         lock.lock()
         defer { lock.unlock() }
         return values
+    }
+}
+
+private final class CredentialUpdateRecorder: @unchecked Sendable {
+    private let lock = NSLock()
+    private var valuesStorage: [ImpressionMac.CredentialManager.CredentialUpdate] = []
+
+    func append(_ value: ImpressionMac.CredentialManager.CredentialUpdate) {
+        lock.lock()
+        valuesStorage.append(value)
+        lock.unlock()
+    }
+
+    var values: [ImpressionMac.CredentialManager.CredentialUpdate] {
+        lock.lock()
+        defer { lock.unlock() }
+        return valuesStorage
     }
 }

@@ -122,6 +122,7 @@ final class CredentialManager {
         }
     }
 
+    // MARK: - Emit change only when token or expiry actually differs
     func reconcileResolvedSources(_ sources: ResolvedCredentialSources) {
         guard let creds = sources.preferredMacCredentials else {
             if lastKnownState != nil {
