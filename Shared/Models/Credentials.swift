@@ -33,6 +33,10 @@ struct OAuthCredentials: Codable {
         guard let refreshToken else { return false }
         return !refreshToken.isEmpty
     }
+
+    var isUsableForMacRecovery: Bool {
+        !isExpired
+    }
 }
 
 struct ResolvedCredentialSources {
@@ -43,11 +47,15 @@ struct ResolvedCredentialSources {
     let mirrorCredentials: OAuthCredentials?
 
     var preferredMacCredentials: OAuthCredentials? {
-        claudeCodeCredentials
-        ?? legacyClaudeCodeCredentials
-        ?? fileCredentials
-        ?? legacyFileCredentials
-        ?? mirrorCredentials
+        [
+            claudeCodeCredentials,
+            legacyClaudeCodeCredentials,
+            fileCredentials,
+            legacyFileCredentials,
+            mirrorCredentials,
+        ]
+        .compactMap { $0 }
+        .first(where: { $0.isUsableForMacRecovery })
     }
 
     var hasAnyLocalClaudeSource: Bool {

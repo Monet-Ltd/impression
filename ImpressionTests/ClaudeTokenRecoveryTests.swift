@@ -34,6 +34,50 @@ final class ClaudeTokenRecoveryTests: XCTestCase {
         XCTAssertEqual(manager.readCredentials()?.accessToken, "local-token")
     }
 
+    func testResolvedCredentialSourcesFallsBackToMirrorWhenLocalSourcesAreMissing() {
+        let mirror = ImpressionMac.OAuthCredentials(
+            accessToken: "mirror-token",
+            refreshToken: nil,
+            expiresAt: Int64((Date().addingTimeInterval(600).timeIntervalSince1970) * 1000),
+            scopes: nil
+        )
+
+        let sources = ImpressionMac.ResolvedCredentialSources(
+            claudeCodeCredentials: nil,
+            legacyClaudeCodeCredentials: nil,
+            fileCredentials: nil,
+            legacyFileCredentials: nil,
+            mirrorCredentials: mirror
+        )
+
+        XCTAssertEqual(sources.preferredMacCredentials?.accessToken, "mirror-token")
+    }
+
+    func testResolvedCredentialSourcesSkipsExpiredLocalCredentialsForValidMirror() {
+        let local = ImpressionMac.OAuthCredentials(
+            accessToken: "expired-local-token",
+            refreshToken: "refresh-token",
+            expiresAt: Int64((Date().addingTimeInterval(-60).timeIntervalSince1970) * 1000),
+            scopes: nil
+        )
+        let mirror = ImpressionMac.OAuthCredentials(
+            accessToken: "mirror-token",
+            refreshToken: nil,
+            expiresAt: Int64((Date().addingTimeInterval(600).timeIntervalSince1970) * 1000),
+            scopes: nil
+        )
+
+        let sources = ImpressionMac.ResolvedCredentialSources(
+            claudeCodeCredentials: local,
+            legacyClaudeCodeCredentials: nil,
+            fileCredentials: nil,
+            legacyFileCredentials: nil,
+            mirrorCredentials: mirror
+        )
+
+        XCTAssertEqual(sources.preferredMacCredentials?.accessToken, "mirror-token")
+    }
+
     func testOAuthCredentialsHasUsableRefreshToken() {
         let creds = ImpressionMac.OAuthCredentials(
             accessToken: "expired-token",
