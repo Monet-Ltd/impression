@@ -86,6 +86,22 @@ final class UsageDataParsingTests: XCTestCase {
         XCTAssertFalse(file.claudeAiOauth?.isExpired ?? true) // expires tomorrow
     }
 
+    func testParseRefreshResponse() throws {
+        let json = """
+        {
+          "access_token": "new-access-token",
+          "expires_in": 3600,
+          "refresh_token": "new-refresh-token",
+          "token_type": "Bearer"
+        }
+        """.data(using: .utf8)!
+
+        let response = try JSONDecoder().decode(ImpressionMac.ClaudeRefreshResponse.self, from: json)
+        XCTAssertEqual(response.accessToken, "new-access-token")
+        XCTAssertEqual(response.expiresIn, 3600)
+        XCTAssertEqual(response.refreshToken, "new-refresh-token")
+    }
+
     func testUsageColorThresholds() {
         XCTAssertEqual(UsageColor.from(utilization: 0), .green)
         XCTAssertEqual(UsageColor.from(utilization: 59), .green)

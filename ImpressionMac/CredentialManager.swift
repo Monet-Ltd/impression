@@ -6,19 +6,44 @@ import Security
 /// 1. macOS Keychain (service: "Claude Code-credentials")
 /// 2. ~/.claude/.credentials.json file
 /// 3. ~/.claude/credentials.json file
-final class CredentialManager: @unchecked Sendable {
+final class CredentialManager {
+    typealias CredentialReader = @Sendable () -> ResolvedCredentialSources
+
+    enum CredentialUpdate: Equatable {
+        case present(token: String, expiresAt: Date?)
+        case missing
+    }
+
+    private static let defaultFilePaths = [
+        NSHomeDirectory() + "/.claude/.credentials.json",
+        NSHomeDirectory() + "/.claude/credentials.json",
+    ]
+
     private let filePaths: [String]
     private var fileDescriptor: Int32 = -1
     private var dispatchSource: DispatchSourceFileSystemObject?
-    private let onChange: @Sendable (String, Date?) -> Void
+    private let onChange: @Sendable (CredentialUpdate) -> Void
+    private let cloudSyncService: CloudSyncService
+    private let credentialReader: CredentialReader
     private var pollingTimer: Timer?
-    private var lastKnownToken: String?
 
-    init(onChange: @escaping @Sendable (String, Date?) -> Void) {
-        self.filePaths = [
-            NSHomeDirectory() + "/.claude/.credentials.json",
-            NSHomeDirectory() + "/.claude/credentials.json",
-        ]
+    private struct WatchedCredentialState: Equatable {
+        let token: String
+        let expiresAt: Date?
+    }
+
+    private var lastKnownState: WatchedCredentialState?
+
+    init(
+        credentialReader: CredentialReader? = nil,
+        cloudSyncService: CloudSyncService = .shared,
+        onChange: @escaping @Sendable (CredentialUpdate) -> Void
+    ) {
+        self.filePaths = Self.defaultFilePaths
+        self.cloudSyncService = cloudSyncService
+        self.credentialReader = credentialReader ?? { [cloudSyncService] in
+            Self.defaultResolvedSources(cloudSyncService: cloudSyncService)
+        }
         self.onChange = onChange
     }
 
@@ -26,26 +51,32 @@ final class CredentialManager: @unchecked Sendable {
         stopWatching()
     }
 
-    // MARK: - Read credentials from best available source
-
     func readCredentials() -> OAuthCredentials? {
-        if let creds = readFromKeychain() { return creds }
-        for path in filePaths {
-            if let creds = readFromFile(path) { return creds }
-        }
-        return nil
+        resolvedSources().preferredMacCredentials
     }
 
-    // MARK: - Keychain reading
+    func resolvedSources() -> ResolvedCredentialSources {
+        credentialReader()
+    }
 
-    private func readFromKeychain() -> OAuthCredentials? {
+    private static func defaultResolvedSources(cloudSyncService: CloudSyncService) -> ResolvedCredentialSources {
+        var keychainCredentials: [String: OAuthCredentials] = [:]
         for service in AppConstants.claudeKeychainServices {
-            if let creds = readKeychainService(service) { return creds }
+            if let creds = readKeychainService(service) {
+                keychainCredentials[service] = creds
+            }
         }
-        return nil
+
+        return ResolvedCredentialSources(
+            claudeCodeCredentials: keychainCredentials["Claude Code-credentials"],
+            legacyClaudeCodeCredentials: keychainCredentials["Claude Code"],
+            fileCredentials: readFromFile(defaultFilePaths[0]),
+            legacyFileCredentials: readFromFile(defaultFilePaths[1]),
+            mirrorCredentials: cloudSyncService.readCredentialsFromMirror()
+        )
     }
 
-    private func readKeychainService(_ service: String) -> OAuthCredentials? {
+    private static func readKeychainService(_ service: String) -> OAuthCredentials? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
@@ -61,24 +92,15 @@ final class CredentialManager: @unchecked Sendable {
         return file?.claudeAiOauth
     }
 
-    // MARK: - File reading
-
-    private func readFromFile(_ path: String) -> OAuthCredentials? {
+    private static func readFromFile(_ path: String) -> OAuthCredentials? {
         guard let data = FileManager.default.contents(atPath: path) else { return nil }
         let file = try? JSONDecoder().decode(CredentialsFile.self, from: data)
         return file?.claudeAiOauth
     }
 
-    // MARK: - Watching for changes
-
     func startWatching() {
-        // Read immediately
-        if let creds = readCredentials() {
-            lastKnownToken = creds.accessToken
-            emitChange(creds)
-        }
+        reconcileResolvedSources(resolvedSources())
 
-        // Watch file if it exists
         for path in filePaths {
             if FileManager.default.fileExists(atPath: path) {
                 watchFile(path)
@@ -86,7 +108,6 @@ final class CredentialManager: @unchecked Sendable {
             }
         }
 
-        // No file — poll Keychain
         startKeychainPolling()
     }
 
@@ -101,43 +122,77 @@ final class CredentialManager: @unchecked Sendable {
         }
     }
 
-    // MARK: - Emit change only when token actually differs
+    func reconcileResolvedSources(_ sources: ResolvedCredentialSources) {
+        guard let creds = sources.preferredMacCredentials else {
+            if lastKnownState != nil {
+                lastKnownState = nil
+                emitMissingCredentials()
+            }
+            return
+        }
+
+        let state = WatchedCredentialState(
+            token: creds.accessToken,
+            expiresAt: creds.expiresAtDate
+        )
+        guard state != lastKnownState else { return }
+
+        lastKnownState = state
+        emitChange(creds)
+    }
 
     private func emitChange(_ creds: OAuthCredentials) {
         let token = creds.accessToken
         let expiry = creds.expiresAtDate
-        // onChange accesses @MainActor-isolated viewModel; must dispatch to main
         let cb = onChange
         DispatchQueue.main.async {
-            cb(token, expiry)
+            cb(.present(token: token, expiresAt: expiry))
         }
-        _ = CloudSyncService.shared.writeTokenToKeychain(token)
+        _ = cloudSyncService.writeTokenToKeychain(token)
         if let expiry {
-            CloudSyncService.shared.writeTokenExpiry(expiry)
+            cloudSyncService.writeTokenExpiry(expiry)
+        }
+    }
+
+    private func emitMissingCredentials() {
+        let cb = onChange
+        DispatchQueue.main.async {
+            cb(.missing)
         }
     }
 
     private func checkAndEmitIfChanged() {
-        guard let creds = readCredentials() else { return }
+        let sources = resolvedSources()
+        let creds = sources.preferredMacCredentials
+        let state = creds.map {
+            WatchedCredentialState(token: $0.accessToken, expiresAt: $0.expiresAtDate)
+        }
 
-        if creds.accessToken != lastKnownToken {
-            NSLog("[Impression] Token changed — re-emitting")
-            lastKnownToken = creds.accessToken
-            emitChange(creds)
-        } else if creds.isExpired {
+        if state != lastKnownState {
+            if lastKnownState != nil {
+                if creds == nil {
+                    NSLog("[Impression] Token disappeared — clearing watcher state")
+                } else {
+                    NSLog("[Impression] Token or expiry changed — re-emitting")
+                }
+            }
+            if let creds {
+                lastKnownState = state
+                emitChange(creds)
+            } else if lastKnownState != nil {
+                lastKnownState = nil
+                emitMissingCredentials()
+            }
+        } else if creds?.isExpired == true {
             NSLog("[Impression] Token expired — Claude Code may not be running")
         }
     }
-
-    // MARK: - Keychain polling (when no credentials file exists)
 
     private func startKeychainPolling() {
         pollingTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
             self?.checkAndEmitIfChanged()
         }
     }
-
-    // MARK: - File watching
 
     private func watchFile(_ path: String) {
         fileDescriptor = open(path, O_EVTONLY)
@@ -150,7 +205,7 @@ final class CredentialManager: @unchecked Sendable {
         )
 
         source.setEventHandler { [weak self] in
-            DispatchQueue.global().asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            DispatchQueue.global().asyncAfter(deadline: .now() + 0.5) {
                 self?.checkAndEmitIfChanged()
             }
         }

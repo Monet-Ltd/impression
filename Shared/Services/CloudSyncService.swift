@@ -112,3 +112,16 @@ final class CloudSyncService: @unchecked Sendable {
         return Date(timeIntervalSince1970: ts)
     }
 }
+
+extension CloudSyncService {
+    func readCredentialsFromMirror() -> OAuthCredentials? {
+        guard let token = readTokenFromKeychain() else { return nil }
+        let expiresAt = readTokenExpiry().map { Int64($0.timeIntervalSince1970 * 1000) }
+        return OAuthCredentials(
+            accessToken: token,
+            refreshToken: nil,
+            expiresAt: expiresAt,
+            scopes: nil
+        )
+    }
+}
